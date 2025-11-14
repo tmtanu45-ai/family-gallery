@@ -67,17 +67,19 @@
 
 </div>
 
-<!-- SUPABASE -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4/dist/umd/supabaseClient.min.js"></script>
+<!-- FIXED SUPABASE IMPORT -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4/dist/umd/supabase.min.js"></script>
 
 <script>
 
 // YOUR SUPABASE CONFIG
-const SUPABASE_URL = "https://brnromvxcpzobwpkwepy.supabaseClient.co";
+const SUPABASE_URL = "https://brnromvxcpzobwpkwepy.supabase.co";
 const SUPABASE_ANON_KEY =
 "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJybnJvbXZ4Y3B6b2J3cGt3ZXB5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMwOTkwOTQsImV4cCI6MjA3ODY3NTA5NH0.FcIogKfFuCyxwyZBgQbLoQkincg9JmJ8CKCBf_X0XSA";
 
-const supabaseClient = window.supabaseClient.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Create client (FIXED)
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 const BUCKET = "family_photos";
 
 // Elements
@@ -88,31 +90,32 @@ const albumsDiv = document.getElementById("albums");
 const upStatus = document.getElementById("upStatus");
 const adminPanel = document.getElementById("adminPanel");
 
-// AUTH UI BUTTONS
+// AUTH BUTTONS
 const btnSignUp = document.getElementById("btnSignUp");
 const btnSignIn = document.getElementById("btnSignIn");
 const btnPhoneSignIn = document.getElementById("btnPhoneSignIn");
 const btnSignOut = document.getElementById("btnSignOut");
 const authInfo = document.getElementById("authInfo");
 
-// ---------------- AUTH FUNCTIONS ------------------
+// ---------------- AUTH ------------------
 
 btnSignUp.onclick = async () => {
-  const email = prompt("Enter email:");
-  const pass = prompt("Enter password:");
+  const email = prompt("Email:");
+  const pass = prompt("Password:");
   await supabaseClient.auth.signUp({ email, password: pass });
   alert("Signup complete. Check email.");
+  loadUI();
 };
 
 btnSignIn.onclick = async () => {
-  const email = prompt("Enter email:");
-  const pass = prompt("Enter password:");
+  const email = prompt("Email:");
+  const pass = prompt("Password:");
   await supabaseClient.auth.signInWithPassword({ email, password: pass });
   loadUI();
 };
 
 btnPhoneSignIn.onclick = async () => {
-  const phone = prompt("Enter phone number (with +91):");
+  const phone = prompt("Phone (with +91):");
   await supabaseClient.auth.signInWithOtp({ phone });
   alert("OTP sent (if SMS configured).");
 };
@@ -125,7 +128,6 @@ btnSignOut.onclick = async () => {
 // ---------------- LOAD UI ------------------
 
 async function loadUI() {
-
   const { data: { user } } = await supabaseClient.auth.getUser();
 
   if (!user) {
@@ -138,7 +140,6 @@ async function loadUI() {
     return;
   }
 
-  // SHOW USER
   authInfo.textContent = "Logged in as: " + (user.email || user.phone);
 
   btnSignUp.style.display = "none";
@@ -146,8 +147,7 @@ async function loadUI() {
   btnPhoneSignIn.style.display = "none";
   btnSignOut.style.display = "inline-block";
 
-  // CHECK ROLE
-  const { data: profile } = await supabase
+  const { data: profile } = await supabaseClient
     .from("profiles")
     .select("*")
     .eq("id", user.id)
@@ -161,21 +161,21 @@ async function loadUI() {
   }
 }
 
-// ---------------- UPLOAD PHOTO ------------------
+// ---------------- UPLOAD ------------------
 
 document.getElementById("uploadBtn").onclick = async () => {
 
   const { data: { user } } = await supabaseClient.auth.getUser();
-  if (!user) return alert("Login first.");
+  if (!user) return alert("Login first");
 
   const file = fileInput.files[0];
-  if (!file) return alert("Select a photo!");
+  if (!file) return alert("Select a file");
 
   const album = albumInput.value || "uncategorized";
-
   const path = `${album}/${user.id}/${Date.now()}_${file.name}`;
 
-  const { error } = await supabaseClient.storage
+  const { error } = await supabaseClient
+    .storage
     .from(BUCKET)
     .upload(path, file);
 
@@ -184,7 +184,6 @@ document.getElementById("uploadBtn").onclick = async () => {
     return;
   }
 
-  // Save metadata
   await supabaseClient.from("photos").insert({
     storage_path: path,
     album: album,
@@ -206,8 +205,7 @@ document.getElementById("uploadBtn").onclick = async () => {
 // ---------------- LOAD GALLERY ------------------
 
 async function loadGallery() {
-
-  const { data } = await supabase
+  const { data } = await supabaseClient
     .from("photos")
     .select("*")
     .order("created_at", { ascending: false });
@@ -215,9 +213,7 @@ async function loadGallery() {
   galleryDiv.innerHTML = "";
 
   for (const p of data) {
-
-    const publicUrl = supabase
-      .storage
+    const url = supabaseClient.storage
       .from(BUCKET)
       .getPublicUrl(p.storage_path).data.publicUrl;
 
@@ -225,7 +221,7 @@ async function loadGallery() {
     card.className = "card";
 
     card.innerHTML = `
-      <img src="${publicUrl}" class="photo-img">
+      <img src="${url}" class="photo-img">
       <p><b>${p.filename}</b></p>
       <p>Album: ${p.album}</p>
       <button onclick="deletePhoto('${p.id}', '${p.storage_path}')">Delete</button>
@@ -238,14 +234,10 @@ async function loadGallery() {
 // ---------------- DELETE PHOTO ------------------
 
 async function deletePhoto(id, path) {
-
   const { data: { user } } = await supabaseClient.auth.getUser();
-  if (!user) return alert("Login first.");
+  if (!user) return alert("Login first");
 
-  // Delete storage
   await supabaseClient.storage.from(BUCKET).remove([path]);
-
-  // Delete metadata
   await supabaseClient.from("photos").delete().eq("id", id);
 
   loadGallery();
@@ -254,11 +246,7 @@ async function deletePhoto(id, path) {
 // ---------------- LOAD ALBUMS ------------------
 
 async function loadAlbums() {
-
-  const { data } = await supabase
-    .from("photos")
-    .select("album");
-
+  const { data } = await supabaseClient.from("photos").select("album");
   const albums = [...new Set(data.map(a => a.album))];
 
   albumsDiv.innerHTML = "";
@@ -273,8 +261,7 @@ async function loadAlbums() {
 }
 
 async function filterAlbum(albumName) {
-
-  const { data } = await supabase
+  const { data } = await supabaseClient
     .from("photos")
     .select("*")
     .eq("album", albumName);
@@ -297,10 +284,9 @@ async function filterAlbum(albumName) {
   }
 }
 
-// ---------------- ADMIN: LOAD USERS ------------------
+// ---------------- ADMIN PANEL ------------------
 
 async function loadAdminUsers() {
-
   const { data } = await supabaseClient.from("profiles").select("*");
 
   const box = document.getElementById("adminUsers");
@@ -308,9 +294,7 @@ async function loadAdminUsers() {
 
   data.forEach(u => {
     box.innerHTML += `
-      <p>
-        ${u.email} - <b>${u.role}</b>
-      </p>
+      <p>${u.email} — <b>${u.role}</b></p>
     `;
   });
 }
@@ -324,5 +308,3 @@ loadGallery();
 
 </body>
 </html>
-
-
