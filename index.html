@@ -6,234 +6,287 @@
 <title>Family Photo Cloud</title>
 
 <style>
-  body {
-    font-family: Arial;
-    margin: 0;
-    padding: 0;
-    background: linear-gradient(135deg, #0f0f0f, #1b1b1b);
-    color: white;
-  }
+/* ---------- BACKGROUND ANIMATION ---------- */
+body {
+  margin: 0;
+  font-family: Poppins, Arial;
+  background: linear-gradient(135deg, #0f0f0f, #1b1b1b);
+  overflow-x: hidden;
+  color: white;
+}
 
-  header {
-    background: rgba(0,0,0,0.6);
-    color: #fff;
-    padding: 18px;
-    text-align: center;
-    font-size: 22px;
-    font-weight: bold;
-    backdrop-filter: blur(10px);
-  }
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
 
-  .container {
-    padding: 15px;
-  }
+.animated-bg {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, #1a1a1a, #111, #222, #151515);
+  background-size: 400% 400%;
+  animation: gradientMove 18s ease infinite;
+  z-index: -1;
+}
 
-  /* Premium Login Button */
-  .top-login-btn {
-    padding: 12px 26px;
-    border-radius: 12px;
-    border: none;
-    background: #111;
-    color: white;
-    font-size: 16px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.2);
-    transition: 0.2s;
-    cursor: pointer;
-  }
-  .top-login-btn:hover {
-    transform: scale(1.05);
-  }
+/* ---------- HEADER ---------- */
+header {
+  text-align: center;
+  padding: 20px;
+  backdrop-filter: blur(8px);
+  font-size: 24px;
+  font-weight: bold;
+  color: #fff;
+}
 
-  /* Gallery */
-  .gallery {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 12px;
-    margin-top: 20px;
-  }
+/* ---------- PREMIUM BUTTON ---------- */
+.top-login-btn {
+  padding: 12px 26px;
+  border-radius: 12px;
+  border: none;
+  background: #111;
+  color: white;
+  font-size: 16px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+  transition: 0.2s;
+  cursor: pointer;
+}
+.top-login-btn:hover {
+  transform: scale(1.05);
+}
 
-  .card {
-    background: rgba(255,255,255,0.1);
-    border-radius: 10px;
-    padding: 10px;
-    backdrop-filter: blur(12px);
-    box-shadow: 0 3px 10px rgba(0,0,0,0.3);
-  }
+/* ---------- GALLERY ---------- */
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+  margin-top: 20px;
+}
+.card {
+  background: rgba(255,255,255,0.08);
+  padding: 10px;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+.photo-img {
+  width: 100%;
+  height: 140px;
+  border-radius: 8px;
+  object-fit: cover;
+}
 
-  .photo-img {
-    width: 100%;
-    height: 130px;
-    object-fit: cover;
-    border-radius: 8px;
-  }
+/* ---------- ADMIN PANEL ---------- */
+#adminPanel {
+  margin-top: 20px;
+  padding: 12px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 10px;
+  display: none;
+}
 
-  .album-btn {
-    padding: 8px 14px;
-    background: #222;
-    border-radius: 20px;
-    border: none;
-    margin: 5px;
-    color: white;
-    cursor: pointer;
-  }
-  .album-btn:hover {
-    background: #333;
-  }
+/* ---------- LOGIN MODAL ---------- */
+#loginModalBg {
+  position: fixed;
+  inset: 0;
+  backdrop-filter: blur(20px);
+  background: rgba(0,0,0,0.65);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
 
-  /* ADMIN PANEL */
-  #adminPanel {
-    margin-top: 25px;
-    padding: 15px;
-    background: rgba(255,255,255,0.05);
-    border-radius: 12px;
-    display: none;
-  }
+#loginModal {
+  width: 360px;
+  padding: 30px;
+  border-radius: 22px;
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(35px);
+  box-shadow: 0px 20px 50px rgba(0,0,0,0.5);
+  animation: fadeIn 0.35s ease;
+  text-align: center;
+}
 
-  /* ---------------- PREMIUM LOGIN MODAL ---------------- */
+@keyframes fadeIn {
+  from { opacity:0; transform:scale(0.9); }
+  to   { opacity:1; transform:scale(1); }
+}
 
-  #loginModalBg {
-    position: fixed;
-    inset: 0;
-    backdrop-filter: blur(18px);
-    background: rgba(0,0,0,0.45);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-  }
+/* ---------- FLOATING LABEL INPUT ---------- */
+.floatingInput {
+  position: relative;
+  margin: 15px 0;
+}
+.floatingInput input {
+  width: 100%;
+  padding: 12px 12px;
+  border-radius: 10px;
+  border: none;
+  background: rgba(255,255,255,0.25);
+  color: #fff;
+  outline: none;
+  font-size: 15px;
+}
+.floatingInput label {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  color: #ddd;
+  transition: 0.25s;
+  pointer-events: none;
+}
+.floatingInput input:focus + label,
+.floatingInput input:not(:placeholder-shown) + label {
+  top: -6px;
+  left: 10px;
+  font-size: 11px;
+  color: #7cd1ff;
+}
 
-  #loginModal {
-    width: 360px;
-    background: rgba(255,255,255,0.15);
-    backdrop-filter: blur(30px);
-    border-radius: 20px;
-    padding: 30px;
-    text-align: center;
-    color: white;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-    animation: premiumFade 0.35s ease-out;
-  }
+/* ---------- PREMIUM BUTTON ---------- */
+.premium-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #00d2ff, #0072ff);
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+  margin-top: 12px;
+  transition: 0.25s;
+}
+.premium-btn:hover {
+  transform: scale(1.03);
+}
+.close-btn {
+  background: rgba(255,255,255,0.25);
+}
 
-  @keyframes premiumFade {
-    from { opacity: 0; transform: scale(0.92) translateY(10px); }
-    to   { opacity: 1; transform: scale(1) translateY(0); }
-  }
-
-  .premium-input {
-    width: 100%;
-    padding: 12px 14px;
-    margin: 10px 0;
-    border-radius: 14px;
-    border: none;
-    outline: none;
-    font-size: 15px;
-    background: rgba(255,255,255,0.25);
-    color: white;
-    backdrop-filter: blur(12px);
-  }
-
-  .premium-btn {
-    width: 100%;
-    padding: 12px;
-    margin-top: 12px;
-    border-radius: 14px;
-    border: none;
-    font-size: 16px;
-    cursor: pointer;
-    font-weight: bold;
-    background: linear-gradient(135deg,#00d2ff,#3a7bd5);
-    color: white;
-    transition: 0.25s;
-  }
-
-  .premium-btn:hover {
-    transform: scale(1.03);
-    box-shadow: 0 6px 18px rgba(0,0,0,0.3);
-  }
-
-  .close-btn {
-    margin-top: 18px;
-    background: rgba(255,255,255,0.3);
-  }
+.google-btn {
+  margin-top: 14px;
+  background: white;
+  color: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.google-btn img {
+  width: 18px;
+}
 
 </style>
-
 </head>
 
 <body>
 
+<div class="animated-bg"></div>
+
 <header>
   Family Photo Cloud
-  <div id="authInfo" style="font-size:14px;margin-top:4px;opacity:0.8;"></div>
+  <div id="authInfo" style="font-size:14px;opacity:0.8;"></div>
 </header>
 
-<div class="container">
+<div style="padding:20px;">
+  <button onclick="openLoginModal()" class="top-login-btn">Login / Register</button>
+  <button id="btnSignOut" class="top-login-btn" style="background:#c0392b;display:none">Sign Out</button>
 
-  <button class="top-login-btn" onclick="openLoginModal()">Login / Register</button>
-  <button id="btnSignOut" class="top-login-btn" style="display:none;background:#900;">Sign Out</button>
+  <hr style="opacity:0.2;margin:20px 0">
 
-  <hr style="opacity:0.1;margin:20px 0;">
-
-  <!-- Upload -->
   <h3>Upload Photo</h3>
   <input type="file" id="fileInput">
-  <input type="text" id="albumInput" placeholder="Album name">
-  <button class="top-login-btn" onclick="uploadPhoto()">Upload</button>
-  <div id="upStatus"></div>
+  <input type="text" id="albumInput" placeholder="Album">
+  <button onclick="uploadPhoto()" class="top-login-btn">Upload</button>
 
-  <hr style="opacity:0.1;margin:20px 0;">
+  <hr style="opacity:0.2;margin:20px 0">
 
-  <!-- Albums -->
   <h3>Albums</h3>
   <div id="albums"></div>
 
-  <hr style="opacity:0.1;margin:20px 0;">
+  <hr style="opacity:0.2;margin:20px 0">
 
-  <!-- Gallery -->
   <h3>Gallery</h3>
   <div id="gallery"></div>
 
-  <hr style="opacity:0.1;margin:20px 0;">
+  <hr style="opacity:0.2;margin:20px 0">
 
-  <!-- Admin -->
   <div id="adminPanel">
     <h3>Admin Panel</h3>
     <div id="adminUsers"></div>
   </div>
-
 </div>
 
-
-<!-- ================= PREMIUM LOGIN MODAL ================= -->
-
+<!-- ---------- LOGIN MODAL ---------- -->
 <div id="loginModalBg">
-  <div id="loginModal">
+<div id="loginModal">
 
-    <h2 style="margin:0 0 10px; font-size:28px;">Welcome Back</h2>
-    <p style="margin-top:-6px; opacity:0.7;">Sign in to your family cloud</p>
+  <img src="https://cdn-icons-png.flaticon.com/512/1829/1829586.png"
+       style="width:70px;opacity:0.9;margin-bottom:10px;">
 
-    <input id="loginEmail" class="premium-input" type="email" placeholder="Email">
-    <input id="loginPassword" class="premium-input" type="password" placeholder="Password">
+  <h2 style="margin:0;">Welcome Back</h2>
+  <p style="opacity:0.7;margin-top:5px;">Your private family photo cloud</p>
 
-    <button class="premium-btn" onclick="loginWithEmail()">Sign In</button>
-    <button class="premium-btn" onclick="registerWithEmail()">Create Account</button>
-
-    <p style="margin:12px 0; opacity:0.7;">or</p>
-
-    <input id="loginPhone" class="premium-input" type="text" placeholder="Phone (+91)">
-    <button class="premium-btn" onclick="loginWithPhone()">Sign in via OTP</button>
-
-    <button class="premium-btn close-btn" onclick="closeLoginModal()">Cancel</button>
-
+  <div style="
+    background:rgba(255,255,255,0.15);
+    padding:10px;
+    border-radius:12px;
+    margin:12px 0;
+    text-align:left;
+    font-size:13px;">
+    <b>Why login?</b>
+    <ul style="margin-left:15px;opacity:0.8;">
+      <li>Upload family photos</li>
+      <li>Create and view albums</li>
+      <li>Access private memories</li>
+      <li>Secure cloud access</li>
+    </ul>
   </div>
+
+  <!-- Floating Inputs -->
+  <div class="floatingInput">
+    <input id="loginEmail" type="email" placeholder=" " />
+    <label>Email address</label>
+  </div>
+
+  <div class="floatingInput">
+    <input id="loginPassword" type="password" placeholder=" " />
+    <label>Password</label>
+  </div>
+
+  <button class="premium-btn" onclick="loginWithEmail()">Sign In</button>
+  <button class="premium-btn" onclick="registerWithEmail()">Create Account</button>
+
+  <p style="opacity:0.6;margin:12px 0;">or</p>
+
+  <!-- Phone -->
+  <div class="floatingInput">
+    <input id="loginPhone" type="text" placeholder=" " />
+    <label>Phone (+91)</label>
+  </div>
+  <button class="premium-btn" onclick="loginWithPhone()">Send OTP</button>
+
+  <p style="font-size:12px;opacity:0.6;margin-top:10px;">
+    Test Mode OTP is always: <b>123456</b>
+  </p>
+
+  <!-- GOOGLE LOGIN -->
+  <button class="premium-btn google-btn" onclick="loginWithGoogle()">
+    <img src="https://cdn-icons-png.flaticon.com/512/300/300221.png">
+    Continue with Google
+  </button>
+
+  <button class="premium-btn close-btn" onclick="closeLoginModal()">Cancel</button>
+
+</div>
 </div>
 
-
-<!-- SUPABASE -->
+<!-- ---------- SUPABASE ---------- -->
 <script src="https://unpkg.com/@supabase/supabase-js@2.38.4/dist/umd/supabase.js"></script>
 
 <script>
-
 const SUPABASE_URL = "https://brnromvxcpzobwpkwepy.supabase.co";
 const SUPABASE_ANON_KEY =
 "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJybnJvbXZ4Y3B6b2J3cGt3ZXB5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMwOTkwOTQsImV4cCI6MjA3ODY3NTA5NH0.FcIogKfFuCyxwyZBgQbLoQkincg9JmJ8CKCBf_X0XSA";
@@ -241,16 +294,14 @@ const SUPABASE_ANON_KEY =
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const BUCKET = "family_photos";
 
-function openLoginModal() {
-  document.getElementById("loginModalBg").style.display = "flex";
-}
-function closeLoginModal() {
-  document.getElementById("loginModalBg").style.display = "none";
-}
+/* ---------- Modal Control ---------- */
+function openLoginModal(){ loginModalBg.style.display="flex"; }
+function closeLoginModal(){ loginModalBg.style.display="none"; }
 
+/* ---------- AUTH ---------- */
 async function loginWithEmail() {
-  const email = loginEmail.value;
-  const pass = loginPassword.value;
+  let email = loginEmail.value;
+  let pass = loginPassword.value;
 
   const { error } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
   if (error) return alert(error.message);
@@ -258,165 +309,125 @@ async function loginWithEmail() {
   closeLoginModal();
   loadUI();
 }
+
 async function registerWithEmail() {
-  const email = loginEmail.value;
-  const pass = loginPassword.value;
+  let email = loginEmail.value;
+  let pass = loginPassword.value;
 
   const { error } = await supabaseClient.auth.signUp({ email, password: pass });
   if (error) return alert(error.message);
-  alert("Check your email to verify your account.");
+  alert("Check your email to verify!");
 }
+
 async function loginWithPhone() {
-  const phone = loginPhone.value;
+  let phone = loginPhone.value;
 
   const { error } = await supabaseClient.auth.signInWithOtp({ phone });
   if (error) return alert(error.message);
-
-  alert("OTP sent (if SMS enabled).");
+  alert("OTP sent (Test OTP: 123456)");
 }
 
-// -------------------------------------------------------------
+async function loginWithGoogle() {
+  const { error } = await supabaseClient.auth.signInWithOAuth({ provider: 'google' });
+  if (error) alert(error.message);
+}
 
-document.getElementById("btnSignOut").onclick = async () => {
-  await supabaseClient.auth.signOut();
-  loadUI();
-};
+btnSignOut.onclick = async () => { await supabaseClient.auth.signOut(); loadUI(); };
 
-// -------------------------------------------------------------
-
+/* ---------- UI Load ---------- */
 async function loadUI() {
-  const { data: { user } } = await supabaseClient.auth.getUser();
+  let { data:{ user }} = await supabaseClient.auth.getUser();
 
   if (!user) {
     authInfo.textContent = "";
-    btnSignOut.style.display = "none";
-    adminPanel.style.display = "none";
+    btnSignOut.style.display="none";
+    adminPanel.style.display="none";
     return;
   }
 
-  authInfo.textContent = "Logged in as: " + (user.email || user.phone);
-  btnSignOut.style.display = "inline-block";
+  authInfo.textContent = user.email || user.phone;
+  btnSignOut.style.display="inline-block";
 
-  const { data: profile } = await supabaseClient
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single();
+  let profile = await supabaseClient.from("profiles")
+    .select("*").eq("id", user.id).single();
 
-  if (profile?.role === "admin") {
-    adminPanel.style.display = "block";
-    loadAdminUsers();
-  } else {
-    adminPanel.style.display = "none";
-  }
+  if (profile.data?.role === "admin") adminPanel.style.display="block";
+  else adminPanel.style.display="none";
 }
 
-// -------------------------------------------------------------
-
+/* ---------- UPLOAD + GALLERY + ADMIN ---------- */
 async function uploadPhoto() {
-  const { data: { user } } = await supabaseClient.auth.getUser();
-  if (!user) return alert("Login first");
+  let { data:{ user }} = await supabaseClient.auth.getUser();
+  if(!user) return alert("Login first");
 
-  const file = fileInput.files[0];
-  if (!file) return alert("Select file");
+  let file = fileInput.files[0];
+  if(!file) return alert("Select file");
 
-  const album = albumInput.value || "uncategorized";
-  const path = `${album}/${user.id}/${Date.now()}_${file.name}`;
+  let album = albumInput.value || "uncategorized";
+  let path = `${album}/${user.id}/${Date.now()}_${file.name}`;
 
-  const { error } = await supabaseClient.storage.from(BUCKET).upload(path, file);
-  if (error) return alert(error.message);
+  await supabaseClient.storage.from(BUCKET).upload(path, file);
 
   await supabaseClient.from("photos").insert({
-    storage_path: path,
-    album,
-    filename: file.name,
-    size: file.size,
-    content_type: file.type,
-    uploader: user.id,
-    uploader_email: user.email,
+    storage_path:path,album,filename:file.name,
+    size:file.size,content_type:file.type,uploader:user.id,
+    uploader_email:user.email
   });
 
   loadGallery();
   loadAlbums();
 }
 
-// -------------------------------------------------------------
-
 async function loadGallery() {
-  const { data } = await supabaseClient.from("photos").select("*").order("created_at", { ascending:false });
-
+  let { data } = await supabaseClient.from("photos").select("*").order("created_at",{ascending:false});
   gallery.innerHTML = "";
 
-  data.forEach(p => {
-    const url = supabaseClient.storage.from(BUCKET).getPublicUrl(p.storage_path).data.publicUrl;
-
+  data.forEach(p=>{
+    let url = supabaseClient.storage.from(BUCKET).getPublicUrl(p.storage_path).data.publicUrl;
     gallery.innerHTML += `
       <div class="card">
         <img src="${url}" class="photo-img">
         <p>${p.filename}</p>
-        <p>Album: ${p.album}</p>
-        <button class="album-btn" onclick="deletePhoto('${p.id}','${p.storage_path}')">Delete</button>
+        <button class="top-login-btn" onclick="deletePhoto('${p.id}','${p.storage_path}')">Delete</button>
       </div>
     `;
   });
 }
 
-async function deletePhoto(id, path) {
+async function deletePhoto(id,path){
   await supabaseClient.storage.from(BUCKET).remove([path]);
-  await supabaseClient.from("photos").delete().eq("id", id);
-
+  await supabaseClient.from("photos").delete().eq("id",id);
   loadGallery();
 }
 
-// -------------------------------------------------------------
-
-async function loadAlbums() {
-  const { data } = await supabaseClient.from("photos").select("album");
-  const albums = [...new Set(data.map(a => a.album))];
-
-  albumsDiv.innerHTML = "";
-
-  albums.forEach(a => {
-    albumsDiv.innerHTML += `
-      <button class="album-btn" onclick="filterAlbum('${a}')">${a}</button>
-    `;
+async function loadAlbums(){
+  let { data } = await supabaseClient.from("photos").select("album");
+  albums.innerHTML="";
+  let set=[...new Set(data.map(x=>x.album))];
+  set.forEach(a=>{
+    albums.innerHTML+=`<button class="top-login-btn" onclick="filterAlbum('${a}')">${a}</button>`;
+  });
+}
+async function filterAlbum(a){
+  let { data } = await supabaseClient.from("photos").select("*").eq("album",a);
+  gallery.innerHTML="";
+  data.forEach(p=>{
+    let url = supabaseClient.storage.from(BUCKET).getPublicUrl(p.storage_path).data.publicUrl;
+    gallery.innerHTML += `<div class="card"><img src="${url}" class="photo-img"><p>${p.filename}</p></div>`;
   });
 }
 
-async function filterAlbum(a) {
-  const { data } = await supabaseClient.from("photos").select("*").eq("album", a);
-
-  gallery.innerHTML = "";
-  data.forEach(p => {
-    const url = supabaseClient.storage.from(BUCKET).getPublicUrl(p.storage_path).data.publicUrl;
-
-    gallery.innerHTML += `
-      <div class="card">
-        <img src="${url}" class="photo-img">
-        <p>${p.filename}</p>
-        <p>Album: ${p.album}</p>
-      </div>
-    `;
+async function loadAdminUsers(){
+  let { data } = await supabaseClient.from("profiles").select("*");
+  adminUsers.innerHTML="";
+  data.forEach(u=>{
+    adminUsers.innerHTML+=`<p>${u.email} — <b>${u.role}</b></p>`;
   });
 }
-
-// -------------------------------------------------------------
-
-async function loadAdminUsers() {
-  const { data } = await supabaseClient.from("profiles").select("*");
-
-  adminUsers.innerHTML = "";
-  data.forEach(u => {
-    adminUsers.innerHTML += `<p>${u.email} — <b>${u.role}</b></p>`;
-  });
-}
-
-// -------------------------------------------------------------
 
 loadUI();
 loadGallery();
 loadAlbums();
-
 </script>
 
 </body>
