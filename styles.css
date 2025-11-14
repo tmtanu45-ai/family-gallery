@@ -122,6 +122,31 @@ header {
   color: #00c8ff;
 }
 
+/* ---------- FULLSCREEN IMAGE VIEWER ---------- */
+#imageViewerBg {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  animation: fadeIn .25s ease;
+}
+
+#imageViewer {
+  max-width: 95%;
+  max-height: 95%;
+  border-radius: 12px;
+  box-shadow: 0 0 30px rgba(0,0,0,0.6);
+  animation: zoomIn .25s ease;
+}
+
+@keyframes zoomIn {
+  from { transform: scale(0.8); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
 /* ---------- BUTTONS ---------- */
 .premium-btn {
   width: 100%;
