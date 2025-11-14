@@ -86,6 +86,16 @@ async function loadUI() {
   adminPanel.style.display = profile?.role === "admin" ? "block" : "none";
   loadAdminUsers();
 }
+/* ---------- FULLSCREEN VIEWER ---------- */
+function openImageViewer(url) {
+  document.getElementById("imageViewer").src = url;
+  document.getElementById("imageViewerBg").style.display = "flex";
+}
+
+function closeImageViewer() {
+  document.getElementById("imageViewerBg").style.display = "none";
+}
+
 
 /* ---------- PHOTO UPLOAD ---------- */
 async function uploadPhoto() {
