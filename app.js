@@ -54,15 +54,21 @@ async function loginWithPhone() {
 
 /* ---------- FIXED GOOGLE LOGIN ---------- */
 async function loginWithGoogle() {
-  const { error } = await supabaseClient.auth.signInWithOAuth({
+  const { data, error } = await supabaseClient.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: window.location.origin
+      redirectTo: window.location.origin,
+      queryParams: {
+        prompt: "select_account"
+      },
+      skipBrowserRedirect: false,   // IMPORTANT
+      flowType: "implicit"          // FORCES NEW TAB
     }
   });
 
   if (error) alert(error.message);
 }
+
 
 /* ---------- SIGN OUT ---------- */
 btnSignOut.onclick = async () => {
