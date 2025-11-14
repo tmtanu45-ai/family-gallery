@@ -1,0 +1,200 @@
+/* ---------- BACKGROUND ANIMATION ---------- */
+body {
+  margin: 0;
+  font-family: Poppins, Arial;
+  color: white;
+  background: #111;
+}
+
+.animated-bg {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg,#1a1a1a,#111,#222,#151515);
+  background-size: 400% 400%;
+  animation: bgMove 18s infinite ease-in-out;
+  z-index: -1;
+}
+
+@keyframes bgMove {
+  0% { background-position: 0% 50%; }
+ 50% { background-position: 100% 50%; }
+100% { background-position: 0% 50%; }
+}
+
+/* ---------- HEADER ---------- */
+header {
+  text-align: center;
+  padding: 20px;
+  backdrop-filter: blur(10px);
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.auth-sub {
+  opacity: .8;
+  font-size: 14px;
+}
+
+/* ---------- BUTTONS ---------- */
+.top-btn {
+  padding: 12px 24px;
+  border-radius: 12px;
+  border: none;
+  background: #111;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+  margin: 5px;
+}
+
+.signout-btn {
+  background: #b00020;
+  display: none;
+}
+
+.top-btn:hover {
+  transform: scale(1.05);
+}
+
+/* ---------- CONTAINER ---------- */
+.container { padding: 20px; }
+
+/* ---------- LOGIN MODAL ---------- */
+#loginModalBg {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.7);
+  backdrop-filter: blur(25px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+#loginModal {
+  width: 360px;
+  padding: 30px;
+  border-radius: 22px;
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(35px);
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  animation: fadeIn .3s ease;
+}
+
+@keyframes fadeIn {
+  from {opacity:0; transform:scale(.9);}
+  to   {opacity:1; transform:scale(1);}
+}
+
+/* ---------- FLOATING INPUTS ---------- */
+.floatingInput {
+  position: relative;
+  margin: 15px 0;
+}
+
+.floatingInput input {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.4);
+  background: rgba(30,30,30,0.9);
+  color: #eee;
+  outline: none;
+  font-size: 15px;
+}
+
+.floatingInput input:focus {
+  border-color: #00c8ff;
+}
+
+.floatingInput label {
+  position: absolute;
+  top: 13px;
+  left: 15px;
+  color: #bbb;
+  transition: .2s;
+}
+
+.floatingInput input:focus + label,
+.floatingInput input:not(:placeholder-shown) + label {
+  top: -6px;
+  font-size: 11px;
+  color: #00c8ff;
+}
+
+/* ---------- BUTTONS ---------- */
+.premium-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  margin-top: 12px;
+  font-size: 15px;
+  font-weight: bold;
+  background: linear-gradient(135deg,#00d2ff,#0072ff);
+  color: white;
+}
+
+.google-btn {
+  background: #fff;
+  color: #000;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.close-btn {
+  background: rgba(255,255,255,0.25);
+}
+
+/* ---------- WHY LOGIN ---------- */
+.why-login-box {
+  background: rgba(255,255,255,0.15);
+  padding: 12px;
+  margin: 15px 0;
+  border-radius: 12px;
+  font-size: 13px;
+  text-align: left;
+}
+
+.why-login-box ul {
+  margin-left: 20px;
+}
+
+/* ---------- IMAGE DISPLAY ---------- */
+.photo-img {
+  width: 100%;
+  height: 200px;
+  object-fit: contain;
+  background: #000;
+  border-radius: 8px;
+}
+
+/* ---------- GALLERY ---------- */
+.gallery, #gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill,minmax(160px,1fr));
+  gap: 12px;
+}
+
+.card {
+  padding: 10px;
+  border-radius: 12px;
+  background: rgba(255,255,255,.08);
+  box-shadow: 0 0 10px rgba(0,0,0,.3);
+  backdrop-filter: blur(10px);
+}
+
+/* ---------- ADMIN PANEL ---------- */
+.admin-box {
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255,255,255,.1);
+  display: none;
+}
+
+/* Divider */
+.divider {
+  opacity: .15;
+  margin: 20px 0;
+}
