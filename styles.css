@@ -154,6 +154,7 @@ header {
   align-items: center;
   justify-content: center;
   gap: 10px;
+  hieght: 32vh;
 }
 
 .or-text {
