@@ -69,7 +69,6 @@ header {
   background: rgba(0,0,0,0.7);
   backdrop-filter: blur(25px);
   display: none;
-  max-height: 100vh;
   overflow-y: auto;
   justify-content: center;
   align-items: center;
