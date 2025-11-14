@@ -69,11 +69,12 @@ header {
   background: rgba(0,0,0,0.7);
   backdrop-filter: blur(25px);
   display: none;
-  overflow-y: auto;
   justify-content: center;
-  align-items: center;
+  align-items: center;      /* FIX: perfect vertical centering */
+  overflow-y: auto;         /* keeps modal scrollable if needed */
   z-index: 2000;
 }
+
 
 #loginModal {
   width: 360px;
