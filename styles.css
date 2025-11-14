@@ -99,7 +99,7 @@ header {
   margin-bottom: 10px;
 }
 
-/* ---------- FLOATING INPUT ---------- */
+/* ----------  INPUT ---------- */
 .floatingInput {
   position: relative;
   margin: 15px auto;       /* center it horizontally */
@@ -123,7 +123,7 @@ header {
 
 .floatingInput label {
   position: absolute;
-  left: 14px;
+  left: 12px;
   top: 14px;
   color: #bbb;
   font-size: 14px;
