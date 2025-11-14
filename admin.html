@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin — Family Photo Cloud</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/@supabase/supabase-js@2.38.4/dist/umd/supabase.js"></script>
+</head>
+<body>
+  <div class="animated-bg"></div>
+
+  <header class="app-header">
+    <div>
+      <span class="brand">Admin Panel</span>
+      <span id="authInfo" class="auth-sub"></span>
+    </div>
+    <div class="header-actions">
+      <a href="index.html" class="top-btn">Home</a>
+      <button id="btnSignOut" class="top-btn signout-btn">Sign Out</button>
+    </div>
+  </header>
+
+  <main class="container admin-container">
+    <section>
+      <h3>Users (profiles)</h3>
+      <div id="adminUsers"></div>
+    </section>
+
+    <section style="margin-top:20px">
+      <h3>Photos (manage)</h3>
+      <div id="adminPhotos" class="gallery"></div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

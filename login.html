@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Login — Family Photo Cloud</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/@supabase/supabase-js@2.38.4/dist/umd/supabase.js"></script>
+</head>
+<body>
+  <div class="animated-bg"></div>
+
+  <main class="login-fullscreen" role="main">
+    <div class="login-card" role="form" aria-label="Login form">
+      <img class="login-logo" src="https://cdn-icons-png.flaticon.com/512/1829/1829586.png" alt="logo">
+      <h1>Family Photo Cloud</h1>
+      <p class="login-sub">Sign in to access your family's photos</p>
+
+      <div class="why-login-box">
+        <b>Why sign in?</b>
+        <ul>
+          <li>Upload & organize family photos</li>
+          <li>Create private albums</li>
+          <li>Share memories securely</li>
+        </ul>
+      </div>
+
+      <div class="floatingInput">
+        <input id="loginEmail" type="email" placeholder=" " autocomplete="email">
+        <label>Email address</label>
+      </div>
+
+      <div class="floatingInput">
+        <input id="loginPassword" type="password" placeholder=" " autocomplete="current-password">
+        <label>Password</label>
+      </div>
+
+      <button class="premium-btn" id="btnEmailSignIn">Sign in</button>
+      <button class="premium-btn" id="btnEmailSignUp">Create account</button>
+
+      <p class="or-text">or</p>
+
+      <div class="floatingInput">
+        <input id="loginPhone" type="text" placeholder=" " pattern="^\+\d{10,15}$">
+        <label>Phone (E.164 format, e.g. +919999999999)</label>
+      </div>
+
+      <button class="premium-btn" id="btnPhoneOtp">Send OTP (SMS)</button>
+
+      <p class="otp-info">If Supabase is in Test Mode OTP = <b>123456</b></p>
+
+      <button class="premium-btn" id="btnEmailOtp">Sign in with Email OTP</button>
+
+      <p class="or-text" style="margin-top:10px">or</p>
+
+      <button class="premium-btn google-btn" id="btnGoogle">
+        <img src="https://cdn-icons-png.flaticon.com/512/300/300221.png" alt="Google"> Continue with Google
+      </button>
+
+      <p id="forgotPassword" class="forgot-link" style="display:none;">
+        <a onclick="sendResetMail()" style="cursor:pointer;color:#00c8ff;">Forgot password?</a>
+      </p>
+
+      <p class="small-note">After sign in you will be redirected to the main gallery.</p>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

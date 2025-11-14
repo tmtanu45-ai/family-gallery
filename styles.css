@@ -1,55 +1,123 @@
-/* ---------- BACKGROUND ANIMATION ---------- */
-body {
-  margin: 0;
-  font-family: Poppins, Arial;
-  color: white;
-  background: #111;
+/* ---------- TOKENS / EDIT HERE ---------- */
+/* Change values below to update the whole UI quickly */
+:root {
+  /* Colors */
+  --accent-1: #00d2ff;
+  --accent-2: #0072ff;
+  --bg-900: #0f0f0f;
+  --bg-800: #151515;
+  --card-bg: rgba(255,255,255,0.08);
+  --glass: rgba(255,255,255,0.12);
+  --muted: rgba(255,255,255,0.7);
+  --text: #ffffff;
+
+  /* Transparency tokens (easy to tweak) */
+  --glass-strong: rgba(255,255,255,0.12);
+  --glass-soft: rgba(255,255,255,0.06);
+
+  /* Spacing scale */
+  --space-xs: 6px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 18px;
+  --space-xl: 26px;
+
+  /* Sizes */
+  --container-max-width: 1100px;
+  --login-max-width: 460px;
+  --image-height: 200px; /* change to adjust gallery image height */
+
+  /* Radii */
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+
+  /* Elevation / shadow */
+  --shadow-soft: 0 6px 18px rgba(0,0,0,0.45);
+  --shadow-strong: 0 24px 60px rgba(0,0,0,0.6);
+
+  /* Animation */
+  --bg-animation-duration: 18s;
+
+  /* Breakpoints */
+  --bp-sm: 520px;
 }
 
+/* ---------- GLOBAL ---------- */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Poppins, Arial, sans-serif;
+  color: var(--text);
+  background: var(--bg-900);
+  height: 100%;
+  overflow: hidden;  
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.35;
+}
+
+/* animated background (uses tokens) */
 .animated-bg {
   position: fixed;
   inset: 0;
-  background: linear-gradient(135deg, #1a1a1a, #111, #222, #151515);
+  background: linear-gradient(135deg, #1a1a1a, var(--bg-800), #222, var(--bg-800));
   background-size: 400% 400%;
-  animation: bgMove 18s infinite ease-in-out;
+  animation: bgMove var(--bg-animation-duration) infinite ease-in-out;
   z-index: -1;
 }
 
 @keyframes bgMove {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
 
-/* ---------- HEADER ---------- */
-header {
-  text-align: center;
-  padding: 22px;
-  backdrop-filter: blur(10px);
-  font-size: 26px;
-  font-weight: bold;
+/* ---------- LAYOUT / CONTAINER ---------- */
+.container {
+  padding: var(--space-lg);
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  
 }
 
-.auth-sub {
-  font-size: 14px;
-  opacity: 0.8;
+/* header */
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: calc(var(--space-sm)) calc(var(--space-lg));
+  backdrop-filter: blur(8px);
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
 }
 
-/* ---------- BUTTONS ---------- */
+.brand {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.header-actions {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+/* ---------- BUTTONS (use tokens) ---------- */
 .top-btn {
-  padding: 12px 24px;
-  border: none;
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
   background: #111;
-  border-radius: 12px;
-  color: white;
+  color: var(--text);
+  border: none;
   cursor: pointer;
-  font-size: 16px;
-  margin: 6px;
-  transition: 0.2s;
+  text-decoration: none;
+  transition: transform .15s, opacity .12s;
 }
 
 .top-btn:hover {
-  transform: scale(1.05);
+  transform: translateY(-2px);
 }
 
 .signout-btn {
@@ -57,210 +125,249 @@ header {
   display: none;
 }
 
-/* ---------- CONTAINER ---------- */
-.container {
-  padding: 20px;
+/* common utilities */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
-/* ---------- LOGIN MODAL ---------- */
-#loginModal {
-  width: 100%;
-  max-width: 480px;           /* on desktop */
-  height: 100vh;              /* FULL SCREEN HEIGHT */
-  background: rgba(255,255,255,0.08);
-  backdrop-filter: blur(35px);
-
-  border-radius: 20px 20px 0 0;            /* remove card shape */
-  padding: 40px 30px;
-  overflow-y: auto;
-  text-align: center;
-
-  animation: fadeIn .3s ease;
-  box-shadow: none;           /* remove floating shadow */
-}
-
-
-
-#loginModal {
-  width: 360px;
-  max-height: 90vh;           /* FIX: never exceed screen height */
-  padding: 30px;
-  overflow-y: auto;           /* FIX: scroll inside modal */
-  background: rgba(255,255,255,.1);
-  border-radius: 22px;
-  backdrop-filter: blur(35px);
-  text-align: center;
-  animation: fadeIn .3s ease;
-  box-shadow: 0 20px 50px rgba(0,0,0,.5);
-  padding-bottom: 40px;       /* FIX: extra space for bottom buttons */
-}
-
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.9); }
-  to   { opacity: 1; transform: scale(1); }
-}
-
-.login-logo {
-  width: 70px;
-  margin-bottom: 10px;
-}
-
-/* ----------  INPUT ---------- */
-.floatingInput {
-  position: relative;
-  margin: 15px auto;       /* center it horizontally */
-  width: 90%;              /* keep nice spacing on left/right */
-  max-width: 320px;        /* prevent too wide inputs */
-}
-
-
-.floatingInput input {
-  width: 100%;
-  padding: 14px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.4);
-  background: rgba(30,30,30,0.9);
-  color: #e6e6e6;
-  outline: none;
-  display: block;          /* center alignment fix */
-  margin: 0 auto;          /* ensures true center */
-}
-
-
-.floatingInput label {
-  position: absolute;
-  left: 10px;
-  top: 14px;
-  color: #bbb;
-  font-size: 14px;
-  transition: 0.2s;
-}
-
-.floatingInput input:focus + label,
-.floatingInput input:not(:placeholder-shown) + label {
-  top: -6px;
-  left: 10px;
-  font-size: 11px;
-  color: #00c8ff;
-}
-
-/* ---------- WHY LOGIN ---------- */
-.why-login-box {
-  background: rgba(255,255,255,0.15);
-  padding: 12px;
-  border-radius: 12px;
-  margin: 15px 0;
-  font-size: 13px;
-  text-align: left;
-}
-
-/* ---------- PREMIUM BUTTON ---------- */
-.premium-btn {
-  width: 100%;
-  padding: 12px;
-  border-radius: 12px;
-  border: none;
-  margin-top: 12px;
-  font-size: 15px;
-  font-weight: bold;
-  background: linear-gradient(135deg, #00d2ff, #0072ff);
-  color: white;
-  cursor: pointer;
-}
-
-.close-btn {
-  background: rgba(255,255,255,0.25);
-}
-
-/* ---------- GOOGLE BUTTON FIX ---------- */
-.google-btn {
-  background: #fff;
-  color: #000;
+.center {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  height: 50px;
+}
+
+/* layout helpers */
+.flex { display: flex; }
+.grid { display: grid; }
+
+/* upload */
+.upload-section input[type="file"] {
+  display: block;
+  margin-bottom: var(--space-sm);
+}
+
+.upload-section input[type="text"] {
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(0,0,0,0.25);
+  color: var(--text);
+}
+
+/* albums */
+#albums {
+  display: flex;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  margin-top: var(--space-sm);
+}
+
+/* gallery (uses tokens for image height and gap) */
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.card {
+  background: var(--card-bg);
+  padding: 10px;
   border-radius: 12px;
+  box-shadow: var(--shadow-soft);
 }
 
-/* FIX: Make Google icon smaller */
-.google-btn img {
-  width: 22px;
-  height: 22px;
+.photo-img {
+  width: 100%;
+  height: var(--image-height);
+  object-fit: contain;
+  background: #000;
+  border-radius: var(--radius-sm);
+  cursor: zoom-in;
 }
 
-
-/* ---------- TEXT ITEMS ---------- */
-.or-text {
-  opacity: 0.7;
-  margin: 12px 0;
-}
-
-.otp-info {
-  font-size: 12px;
-  opacity: 0.6;
-  margin-top: 10px;
-}
-
-/* ---------- FULLSCREEN VIEWER ---------- */
+/* fullscreen viewer */
 #imageViewerBg {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.85);
+  background: rgba(0,0,0,0.88);
   display: none;
   justify-content: center;
   align-items: center;
-  z-index: 3000;
+  z-index: 9999;
 }
 
 #imageViewer {
   max-width: 95%;
   max-height: 95%;
-  border-radius: 12px;
-  animation: zoom 0.25s ease;
+  border-radius: 10px;
 }
 
-@keyframes zoom {
-  from { transform: scale(0.8); opacity: 0; }
-  to   { transform: scale(1); opacity: 1; }
-}
-
-/* ---------- GALLERY ---------- */
-#gallery {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 12px;
-}
-
-.card {
-  padding: 10px;
-  border-radius: 12px;
-  background: rgba(255,255,255,0.08);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-}
-
-.photo-img {
+/* LOGIN (full screen card) uses tokens */
+.login-fullscreen {
+  min-height: 100vh;
   width: 100%;
-  height: 200px;
-  object-fit: contain;
-  background: #000;
-  border-radius: 8px;
-  cursor: zoom-in;
+  display: flex;
+  align-items: center;        /* vertical center */
+  justify-content: center;    /* horizontal center */
+  padding-bottom: 0;
+  margin-top: 50px;
+  overflow-y: auto;           /* if content grows, page scrolls */
 }
 
-/* ---------- ADMIN PANEL ---------- */
-.admin-box {
+
+.login-card {
+  transform: scale(0.75);        /* 25% zoom out */
+  transform-origin: center top;  /* keeps the card centered */
+  width: 100%;
+  max-width: var(--login-max-width);
+  background: var(--glass);
+  border-radius: var(--radius-lg);
+  padding: 26px;
+  box-shadow: var(--shadow-strong);
+}
+
+.login-logo {
+  width: 68px;
+  display: block;
+  margin: 0 auto 8px;
+}
+
+.login-sub {
+  color: var(--muted);
+  margin-top: 4px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.why-login-box {
+  background: var(--glass-soft);
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+/* floating inputs */
+.floatingInput {
+  position: relative;
+  margin: 12px auto;
+  width: 92%;
+  max-width: 360px;
+}
+
+.floatingInput input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(20,20,20,0.86);
+  color: #f1f1f1;
+  outline: none;
+  font-size: 14px;
+}
+
+.floatingInput label {
+  position: absolute;
+  left: 14px;
+  top: 12px;
+  color: #bdbdbd;
+  transition: .18s;
+  font-size: 13px;
+  pointer-events: none;
+}
+
+.floatingInput input:focus + label,
+.floatingInput input:not(:placeholder-shown) + label {
+  top: -8px;
+  left: 10px;
+  font-size: 11px;
+  color: var(--accent-1);
+}
+
+/* premium button (semantic and reusable) */
+.premium-btn {
+  width: 92%;
+  max-width: 360px;
+  margin: 10px auto;
+  display: block;
   padding: 12px;
-  background: rgba(255,255,255,0.1);
-  border-radius: 12px;
-  display: none;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
 }
 
-/* ---------- DIVIDER ---------- */
-.divider {
-  opacity: 0.15;
-  margin: 20px 0;
+.google-btn {
+  background: #fff;
+  color: #000;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  height: 46px;
+  border-radius: var(--radius-sm);
 }
+
+.google-btn img {
+  width: 20px;
+  height: 20px;
+}
+
+/* small notes */
+.small-note,
+.otp-info {
+  text-align: center;
+  color: rgba(255,255,255,0.75);
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+/* admin page */
+.admin-container {
+  max-width: 980px;
+  margin: 0 auto;
+}
+.or-text {
+  text-align: center;
+  width: 100%;
+  opacity: .7;
+  margin: 16px 0;
+  font-size: 14px;
+  display: block;
+}
+.forgot-link {
+  text-align:center;
+  margin-top:8px;
+}
+
+
+@media (max-width: 520px) {
+  .login-card {
+    padding: 18px;
+    border-radius: 0;
+    width: 100%;
+    height: 100vh;
+    box-shadow: none;
+  }
+
+  .floatingInput {
+    width: 94%;
+  }
+
+  .premium-btn {
+    width: 94%;
+  }
+}
+
+/* ---------- QUICK EDIT HINTS ----------
+To change theme colors change --accent-1 / --accent-2.
+To change image size change --image-height.
+To change spacing change --space-* tokens.
+To adjust border radii change --radius-* tokens.
+*/

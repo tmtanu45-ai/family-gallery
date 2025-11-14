@@ -1,116 +1,52 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Family Photo Cloud</title>
-
+  <title>Family Gallery</title>
   <link rel="stylesheet" href="styles.css">
-
-  <!-- Supabase -->
   <script src="https://unpkg.com/@supabase/supabase-js@2.38.4/dist/umd/supabase.js"></script>
 </head>
-
 <body>
+  <div class="animated-bg"></div>
 
-<div class="animated-bg"></div>
+  <header class="app-header">
+    <div>
+      <span class="brand">Family Photo Cloud</span>
+      <span id="authInfo" class="auth-sub"></span>
+    </div>
+    <div class="header-actions">
+      <a href="login.html" class="top-btn">Login</a>
+      <button id="btnSignOut" class="top-btn signout-btn">Sign Out</button>
+      <a href="admin.html" id="adminLink" class="top-btn" style="display:none">Admin</a>
+    </div>
+  </header>
 
-<header>
-  Family Photo Cloud
-  <div id="authInfo" class="auth-sub"></div>
-</header>
+  <main class="container">
+    <section class="upload-section">
+      <h3>Upload</h3>
+      <input type="file" id="fileInput" accept="image/*">
+      <input id="albumInput" type="text" placeholder="Album name">
+      <button class="top-btn" id="btnUpload">Upload</button>
+      <div id="upStatus" style="margin-top:8px"></div>
+    </section>
 
-<div class="container">
+    <section class="albums-section">
+      <h3>Albums</h3>
+      <div id="albums"></div>
+    </section>
 
-  <button onclick="openLoginModal()" class="top-btn">Login / Register</button>
-  <button id="btnSignOut" class="top-btn signout-btn">Sign Out</button>
+    <section class="gallery-section">
+      <h3>Gallery</h3>
+      <div id="gallery" class="gallery"></div>
+    </section>
+  </main>
 
-  <hr class="divider">
-
-  <h3>Upload Photo</h3>
-  <input type="file" id="fileInput">
-  <input type="text" id="albumInput" placeholder="Album name">
-  <button onclick="uploadPhoto()" class="top-btn">Upload</button>
-
-  <hr class="divider">
-
-  <h3>Albums</h3>
-  <div id="albums"></div>
-
-  <hr class="divider">
-
-  <h3>Gallery</h3>
-  <div id="gallery"></div>
-
-  <hr class="divider">
-
-  <div id="adminPanel" class="admin-box">
-    <h3>Admin Panel</h3>
-    <div id="adminUsers"></div>
+  <!-- Fullscreen viewer -->
+  <div id="imageViewerBg">
+    <img id="imageViewer" alt="view">
   </div>
 
-</div>
-
-<!-- FULLSCREEN IMAGE VIEWER -->
-<div id="imageViewerBg">
-  <img id="imageViewer">
-</div>
-
-<!-- LOGIN MODAL -->
-<div id="loginModalBg">
-  <div id="loginModal">
-
-    <img src="https://cdn-icons-png.flaticon.com/512/1829/1829586.png"
-         class="login-logo">
-
-    <h2 class="login-title">Welcome Back</h2>
-    <p class="login-sub">Your private family photo cloud</p>
-
-    <div class="why-login-box">
-      <b>Why login?</b>
-      <ul>
-        <li>Upload family photos</li>
-        <li>Create & explore albums</li>
-        <li>Access private memories</li>
-        <li>Secure cloud access</li>
-      </ul>
-    </div>
-
-    <div class="floatingInput">
-      <input id="loginEmail" type="email" placeholder=" ">
-      <label>Email address</label>
-    </div>
-
-    <div class="floatingInput">
-      <input id="loginPassword" type="password" placeholder=" ">
-      <label>Password</label>
-    </div>
-
-    <button class="premium-btn" onclick="loginWithEmail()">Sign In</button>
-    <button class="premium-btn" onclick="registerWithEmail()">Create Account</button>
-
-    <p class="or-text">or</p>
-
-    <div class="floatingInput">
-      <input id="loginPhone" type="text" placeholder=" ">
-      <label>Phone (+91)</label>
-    </div>
-
-    <button class="premium-btn" onclick="loginWithPhone()">Send OTP</button>
-
-    <p class="otp-info">Test Mode OTP: <b>123456</b></p>
-
-    <button class="premium-btn google-btn" onclick="loginWithGoogle()">
-      <img src="https://cdn-icons-png.flaticon.com/512/300/300221.png">
-      Continue with Google
-    </button>
-
-    <button class="premium-btn close-btn" onclick="closeLoginModal()">Cancel</button>
-
-  </div>
-</div>
-
-<script src="app.js"></script>
-
+  <script src="app.js"></script>
 </body>
 </html>
