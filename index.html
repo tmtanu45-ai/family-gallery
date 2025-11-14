@@ -1,0 +1,326 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Family Photo Gallery</title>
+
+<style>
+  body { font-family: Arial; margin: 0; padding: 0; background: #f4f4f4; }
+  header { background: #333; color: white; padding: 15px; text-align: center; }
+  .container { padding: 15px; }
+  button { padding: 10px; margin: 5px; border-radius: 6px; border: none; cursor: pointer; }
+  input[type="file"] { margin: 10px 0; }
+  .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 20px; }
+  .card { background: white; border-radius: 6px; padding: 10px; box-shadow: 0px 2px 5px rgba(0,0,0,0.1); }
+  .photo-img { width: 100%; height: 120px; object-fit: cover; border-radius: 4px; }
+  .album-btn { padding: 6px 12px; background: #ddd; border-radius: 20px; margin: 5px; cursor: pointer; border: none; }
+  .active { background: #4CAF50 !important; color: white; }
+  #adminPanel { margin-top: 20px; padding: 10px; background: #fff; border-radius: 8px; display: none; }
+</style>
+
+</head>
+
+<body>
+
+<header>
+  <h2>📸 Family Photo Gallery</h2>
+  <div id="authInfo"></div>
+</header>
+
+<div class="container">
+
+  <!-- AUTH BUTTONS -->
+  <button id="btnSignUp">Sign Up</button>
+  <button id="btnSignIn">Sign In</button>
+  <button id="btnPhoneSignIn">Phone OTP</button>
+  <button id="btnSignOut" style="display:none;">Sign Out</button>
+
+  <hr>
+
+  <!-- UPLOAD SECTION -->
+  <h3>Upload Photo</h3>
+  <input type="file" id="fileInput">
+  <input type="text" id="albumInput" placeholder="Album name">
+  <button id="uploadBtn">Upload</button>
+  <div id="upStatus"></div>
+
+  <hr>
+
+  <!-- ALBUM FILTERS -->
+  <h3>Albums</h3>
+  <div id="albums"></div>
+
+  <hr>
+
+  <!-- GALLERY -->
+  <h3>Gallery</h3>
+  <div id="gallery"></div>
+
+  <hr>
+
+  <!-- ADMIN PANEL -->
+  <div id="adminPanel">
+    <h3>Admin Panel</h3>
+    <div id="adminUsers"></div>
+  </div>
+
+</div>
+
+<!-- SUPABASE -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+// YOUR SUPABASE CONFIG
+const SUPABASE_URL = "https://brnromvxcpzobwpkwepy.supabase.co";
+const SUPABASE_ANON_KEY =
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJybnJvbXZ4Y3B6b2J3cGt3ZXB5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMwOTkwOTQsImV4cCI6MjA3ODY3NTA5NH0.FcIogKfFuCyxwyZBgQbLoQkincg9JmJ8CKCBf_X0XSA";
+
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const BUCKET = "family_photos";
+
+// Elements
+const fileInput = document.getElementById("fileInput");
+const albumInput = document.getElementById("albumInput");
+const galleryDiv = document.getElementById("gallery");
+const albumsDiv = document.getElementById("albums");
+const upStatus = document.getElementById("upStatus");
+const adminPanel = document.getElementById("adminPanel");
+
+// AUTH UI BUTTONS
+const btnSignUp = document.getElementById("btnSignUp");
+const btnSignIn = document.getElementById("btnSignIn");
+const btnPhoneSignIn = document.getElementById("btnPhoneSignIn");
+const btnSignOut = document.getElementById("btnSignOut");
+const authInfo = document.getElementById("authInfo");
+
+// ---------------- AUTH FUNCTIONS ------------------
+
+btnSignUp.onclick = async () => {
+  const email = prompt("Enter email:");
+  const pass = prompt("Enter password:");
+  await supabase.auth.signUp({ email, password: pass });
+  alert("Signup complete. Check email.");
+};
+
+btnSignIn.onclick = async () => {
+  const email = prompt("Enter email:");
+  const pass = prompt("Enter password:");
+  await supabase.auth.signInWithPassword({ email, password: pass });
+  loadUI();
+};
+
+btnPhoneSignIn.onclick = async () => {
+  const phone = prompt("Enter phone number (with +91):");
+  await supabase.auth.signInWithOtp({ phone });
+  alert("OTP sent (if SMS configured).");
+};
+
+btnSignOut.onclick = async () => {
+  await supabase.auth.signOut();
+  loadUI();
+};
+
+// ---------------- LOAD UI ------------------
+
+async function loadUI() {
+
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    authInfo.textContent = "";
+    btnSignUp.style.display = "inline-block";
+    btnSignIn.style.display = "inline-block";
+    btnPhoneSignIn.style.display = "inline-block";
+    btnSignOut.style.display = "none";
+    adminPanel.style.display = "none";
+    return;
+  }
+
+  // SHOW USER
+  authInfo.textContent = "Logged in as: " + (user.email || user.phone);
+
+  btnSignUp.style.display = "none";
+  btnSignIn.style.display = "none";
+  btnPhoneSignIn.style.display = "none";
+  btnSignOut.style.display = "inline-block";
+
+  // CHECK ROLE
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", user.id)
+    .single();
+
+  if (profile?.role === "admin") {
+    adminPanel.style.display = "block";
+    loadAdminUsers();
+  } else {
+    adminPanel.style.display = "none";
+  }
+}
+
+// ---------------- UPLOAD PHOTO ------------------
+
+document.getElementById("uploadBtn").onclick = async () => {
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return alert("Login first.");
+
+  const file = fileInput.files[0];
+  if (!file) return alert("Select a photo!");
+
+  const album = albumInput.value || "uncategorized";
+
+  const path = `${album}/${user.id}/${Date.now()}_${file.name}`;
+
+  const { error } = await supabase.storage
+    .from(BUCKET)
+    .upload(path, file);
+
+  if (error) {
+    upStatus.textContent = "Upload failed: " + error.message;
+    return;
+  }
+
+  // Save metadata
+  await supabase.from("photos").insert({
+    storage_path: path,
+    album: album,
+    filename: file.name,
+    size: file.size,
+    content_type: file.type,
+    uploader: user.id,
+    uploader_email: user.email || null
+  });
+
+  upStatus.textContent = "Uploaded!";
+  fileInput.value = "";
+  albumInput.value = "";
+
+  loadAlbums();
+  loadGallery();
+};
+
+// ---------------- LOAD GALLERY ------------------
+
+async function loadGallery() {
+
+  const { data } = await supabase
+    .from("photos")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  galleryDiv.innerHTML = "";
+
+  for (const p of data) {
+
+    const publicUrl = supabase
+      .storage
+      .from(BUCKET)
+      .getPublicUrl(p.storage_path).data.publicUrl;
+
+    const card = document.createElement("div");
+    card.className = "card";
+
+    card.innerHTML = `
+      <img src="${publicUrl}" class="photo-img">
+      <p><b>${p.filename}</b></p>
+      <p>Album: ${p.album}</p>
+      <button onclick="deletePhoto('${p.id}', '${p.storage_path}')">Delete</button>
+    `;
+
+    galleryDiv.appendChild(card);
+  }
+}
+
+// ---------------- DELETE PHOTO ------------------
+
+async function deletePhoto(id, path) {
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return alert("Login first.");
+
+  // Delete storage
+  await supabase.storage.from(BUCKET).remove([path]);
+
+  // Delete metadata
+  await supabase.from("photos").delete().eq("id", id);
+
+  loadGallery();
+}
+
+// ---------------- LOAD ALBUMS ------------------
+
+async function loadAlbums() {
+
+  const { data } = await supabase
+    .from("photos")
+    .select("album");
+
+  const albums = [...new Set(data.map(a => a.album))];
+
+  albumsDiv.innerHTML = "";
+
+  albums.forEach(a => {
+    const btn = document.createElement("button");
+    btn.className = "album-btn";
+    btn.textContent = a;
+    btn.onclick = () => filterAlbum(a);
+    albumsDiv.appendChild(btn);
+  });
+}
+
+async function filterAlbum(albumName) {
+
+  const { data } = await supabase
+    .from("photos")
+    .select("*")
+    .eq("album", albumName);
+
+  galleryDiv.innerHTML = "";
+
+  for (const p of data) {
+    const url = supabase.storage.from(BUCKET).getPublicUrl(p.storage_path).data.publicUrl;
+
+    const card = document.createElement("div");
+    card.className = "card";
+
+    card.innerHTML = `
+      <img src="${url}" class="photo-img">
+      <p><b>${p.filename}</b></p>
+      <p>Album: ${p.album}</p>
+    `;
+
+    galleryDiv.appendChild(card);
+  }
+}
+
+// ---------------- ADMIN: LOAD USERS ------------------
+
+async function loadAdminUsers() {
+
+  const { data } = await supabase.from("profiles").select("*");
+
+  const box = document.getElementById("adminUsers");
+  box.innerHTML = "<h4>User Roles</h4>";
+
+  data.forEach(u => {
+    box.innerHTML += `
+      <p>
+        ${u.email} - <b>${u.role}</b>
+      </p>
+    `;
+  });
+}
+
+// INIT
+loadUI();
+loadAlbums();
+loadGallery();
+
+</script>
+
+</body>
+</html>
