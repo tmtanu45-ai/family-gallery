@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Family Photo Cloud</title>
 
-  <!-- External CSS -->
   <link rel="stylesheet" href="styles.css">
 
   <!-- Supabase -->
@@ -52,11 +51,17 @@
 
 </div>
 
+<!-- FULLSCREEN IMAGE VIEWER -->
+<div id="imageViewerBg">
+  <img id="imageViewer">
+</div>
+
 <!-- LOGIN MODAL -->
 <div id="loginModalBg">
   <div id="loginModal">
 
-    <img src="https://cdn-icons-png.flaticon.com/512/1829/1829586.png" class="login-logo">
+    <img src="https://cdn-icons-png.flaticon.com/512/1829/1829586.png"
+         class="login-logo">
 
     <h2 class="login-title">Welcome Back</h2>
     <p class="login-sub">Your private family photo cloud</p>
@@ -71,7 +76,6 @@
       </ul>
     </div>
 
-    <!-- Floating Inputs -->
     <div class="floatingInput">
       <input id="loginEmail" type="email" placeholder=" ">
       <label>Email address</label>
@@ -97,21 +101,16 @@
     <p class="otp-info">Test Mode OTP: <b>123456</b></p>
 
     <button class="premium-btn google-btn" onclick="loginWithGoogle()">
-      <img src="https://cdn-icons-png.flaticon.com/512/300/300221.png"> Continue with Google
+      <img src="https://cdn-icons-png.flaticon.com/512/300/300221.png">
+      Continue with Google
     </button>
 
     <button class="premium-btn close-btn" onclick="closeLoginModal()">Cancel</button>
 
   </div>
 </div>
-<!-- Fullscreen Image Viewer -->
-<div id="imageViewerBg">
-  <img id="imageViewer" src="">
-</div>
 
-<!-- External JS -->
 <script src="app.js"></script>
 
 </body>
 </html>
-
