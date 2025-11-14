@@ -7,83 +7,97 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
 const BUCKET = "family_photos";
 
 /* ---------- MODAL CONTROL ---------- */
-function openLoginModal(){ loginModalBg.style.display = "flex"; }
-function closeLoginModal(){ loginModalBg.style.display = "none"; }
+function openLoginModal() {
+  loginModalBg.style.display = "flex";
+}
+function closeLoginModal() {
+  loginModalBg.style.display = "none";
+}
 
 /* ---------- FULLSCREEN VIEWER ---------- */
-function openImageViewer(url){
+function openImageViewer(url) {
   imageViewer.src = url;
   imageViewerBg.style.display = "flex";
 }
 imageViewerBg.onclick = () => imageViewerBg.style.display = "none";
 
 /* ---------- AUTH ---------- */
-async function loginWithEmail(){
+async function loginWithEmail() {
   const { error } = await supabaseClient.auth.signInWithPassword({
     email: loginEmail.value,
     password: loginPassword.value
   });
   if (error) return alert(error.message);
+
   closeLoginModal();
   loadUI();
 }
 
-async function registerWithEmail(){
+async function registerWithEmail() {
   const { error } = await supabaseClient.auth.signUp({
     email: loginEmail.value,
     password: loginPassword.value
   });
   if (error) return alert(error.message);
+
   alert("Check your email to verify!");
 }
 
-async function loginWithPhone(){
+async function loginWithPhone() {
   const { error } = await supabaseClient.auth.signInWithOtp({
     phone: loginPhone.value
   });
   if (error) return alert(error.message);
+
   alert("OTP sent. Test OTP = 123456");
 }
 
-async function loginWithGoogle(){
+/* ---------- FIXED GOOGLE LOGIN ---------- */
+async function loginWithGoogle() {
   const { error } = await supabaseClient.auth.signInWithOAuth({
-    provider: "google"
+    provider: "google",
+    options: {
+      redirectTo: window.location.origin
+    }
   });
+
   if (error) alert(error.message);
 }
 
-btnSignOut.onclick = async ()=>{
+/* ---------- SIGN OUT ---------- */
+btnSignOut.onclick = async () => {
   await supabaseClient.auth.signOut();
   loadUI();
 };
 
 /* ---------- UI CONTROL ---------- */
-async function loadUI(){
-  const { data:{ user }} = await supabaseClient.auth.getUser();
+async function loadUI() {
+  const { data: { user } } = await supabaseClient.auth.getUser();
 
-  if (!user){
-    btnSignOut.style.display="none";
-    authInfo.textContent="";
-    adminPanel.style.display="none";
+  if (!user) {
+    btnSignOut.style.display = "none";
+    authInfo.textContent = "";
+    adminPanel.style.display = "none";
     return;
   }
 
   authInfo.textContent = user.email || user.phone;
-  btnSignOut.style.display="inline-block";
+  btnSignOut.style.display = "inline-block";
 
-  const { data:profile } = await supabaseClient
+  const { data: profile } = await supabaseClient
     .from("profiles")
     .select("*")
-    .eq("id",user.id)
+    .eq("id", user.id)
     .single();
 
   adminPanel.style.display = profile?.role === "admin" ? "block" : "none";
+
   loadAdminUsers();
 }
 
 /* ---------- UPLOAD ---------- */
-async function uploadPhoto(){
-  const { data:{ user }} = await supabaseClient.auth.getUser();
+async function uploadPhoto() {
+  const { data: { user } } = await supabaseClient.auth.getUser();
   if (!user) return alert("Login first!");
 
   const file = fileInput.files[0];
@@ -92,7 +106,7 @@ async function uploadPhoto(){
   const album = albumInput.value || "uncategorized";
   const path = `${album}/${user.id}/${Date.now()}_${file.name}`;
 
-  const { error } = await supabaseClient.storage.from(BUCKET).upload(path,file);
+  const { error } = await supabaseClient.storage.from(BUCKET).upload(path, file);
   if (error) return alert(error.message);
 
   await supabaseClient.from("photos").insert({
@@ -108,15 +122,15 @@ async function uploadPhoto(){
 }
 
 /* ---------- GALLERY ---------- */
-async function loadGallery(){
+async function loadGallery() {
   const { data } = await supabaseClient
     .from("photos")
     .select("*")
-    .order("created_at",{ ascending:false });
+    .order("created_at", { ascending: false });
 
   gallery.innerHTML = "";
 
-  data.forEach(p=>{
+  data.forEach(p => {
     const url = supabaseClient.storage.from(BUCKET)
       .getPublicUrl(p.storage_path).data.publicUrl;
 
@@ -129,33 +143,34 @@ async function loadGallery(){
   });
 }
 
-async function deletePhoto(id,path){
+async function deletePhoto(id, path) {
   await supabaseClient.storage.from(BUCKET).remove([path]);
-  await supabaseClient.from("photos").delete().eq("id",id);
+  await supabaseClient.from("photos").delete().eq("id", id);
   loadGallery();
 }
 
 /* ---------- ALBUMS ---------- */
-async function loadAlbums(){
+async function loadAlbums() {
   const { data } = await supabaseClient.from("photos").select("album");
+
   albums.innerHTML = "";
+  const set = [...new Set(data.map(x => x.album))];
 
-  const set = [...new Set(data.map(x=>x.album))];
-
-  set.forEach(a=>{
+  set.forEach(a => {
     albums.innerHTML += `
-      <button class="top-btn" onclick="filterAlbum('${a}')">${a}</button>
-    `;
+      <button class="top-btn" onclick="filterAlbum('${a}')">${a}</button>`;
   });
 }
 
-async function filterAlbum(a){
+async function filterAlbum(a) {
   const { data } = await supabaseClient
-    .from("photos").select("*").eq("album",a);
+    .from("photos")
+    .select("*")
+    .eq("album", a);
 
   gallery.innerHTML = "";
 
-  data.forEach(p=>{
+  data.forEach(p => {
     const url = supabaseClient.storage.from(BUCKET)
       .getPublicUrl(p.storage_path).data.publicUrl;
 
@@ -168,14 +183,13 @@ async function filterAlbum(a){
 }
 
 /* ---------- ADMIN ---------- */
-async function loadAdminUsers(){
+async function loadAdminUsers() {
   const { data } = await supabaseClient.from("profiles").select("*");
-  adminUsers.innerHTML = "";
 
-  data.forEach(u=>{
+  adminUsers.innerHTML = "";
+  data.forEach(u => {
     adminUsers.innerHTML += `
-      <p>${u.email} — <b>${u.role}</b></p>
-    `;
+      <p>${u.email} — <b>${u.role}</b></p>`;
   });
 }
 
