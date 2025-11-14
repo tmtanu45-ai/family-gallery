@@ -83,6 +83,7 @@ header {
   border-radius: 22px;
   backdrop-filter: blur(35px);
   text-align: center;
+  justify-content: center;
   animation: fadeIn .3s ease;
   box-shadow: 0 20px 50px rgba(0,0,0,.5);
   padding-bottom: 40px;       /* FIX: extra space for bottom buttons */
