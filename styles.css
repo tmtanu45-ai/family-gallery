@@ -24,36 +24,35 @@ body {
 /* ---------- HEADER ---------- */
 header {
   text-align: center;
-  padding: 20px;
+  padding: 22px;
   backdrop-filter: blur(10px);
-  font-size: 24px;
+  font-size: 26px;
   font-weight: bold;
 }
 
 .auth-sub {
-  opacity: .8;
   font-size: 14px;
+  opacity: 0.8;
 }
 
 /* ---------- BUTTONS ---------- */
 .top-btn {
   padding: 12px 24px;
-  border-radius: 12px;
   border: none;
   background: #111;
+  border-radius: 12px;
   color: white;
   cursor: pointer;
   font-size: 16px;
-  margin: 5px;
+  margin: 6px;
+  transition: .2s;
 }
-
-.signout-btn {
-  background: #b00020;
-  display: none;
-}
-
 .top-btn:hover {
   transform: scale(1.05);
+}
+.signout-btn {
+  background: #c0392b;
+  display: none;
 }
 
 /* ---------- CONTAINER ---------- */
@@ -63,88 +62,73 @@ header {
 #loginModalBg {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,.7);
+  background: rgba(0,0,0,0.7);
   backdrop-filter: blur(25px);
   display: none;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  z-index: 2000;
 }
 
 #loginModal {
   width: 360px;
   padding: 30px;
+  background: rgba(255,255,255,.1);
   border-radius: 22px;
-  background: rgba(255,255,255,0.15);
   backdrop-filter: blur(35px);
   text-align: center;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
   animation: fadeIn .3s ease;
+  box-shadow: 0 20px 50px rgba(0,0,0,.5);
 }
 
 @keyframes fadeIn {
-  from {opacity:0; transform:scale(.9);}
+  from {opacity:0; transform:scale(0.9);}
   to   {opacity:1; transform:scale(1);}
 }
 
-/* ---------- FLOATING INPUTS ---------- */
+.login-logo {
+  width: 70px;
+  margin-bottom: 10px;
+}
+
+/* ---------- FLOATING INPUT ---------- */
 .floatingInput {
   position: relative;
   margin: 15px 0;
 }
-
 .floatingInput input {
   width: 100%;
   padding: 14px;
   border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.4);
   background: rgba(30,30,30,0.9);
-  color: #eee;
+  color: #e6e6e6;
   outline: none;
-  font-size: 15px;
 }
-
-.floatingInput input:focus {
-  border-color: #00c8ff;
-}
-
 .floatingInput label {
   position: absolute;
-  top: 13px;
-  left: 15px;
+  left: 14px;
+  top: 14px;
   color: #bbb;
-  transition: .2s;
+  font-size: 14px;
+  transition: 0.2s;
 }
-
 .floatingInput input:focus + label,
 .floatingInput input:not(:placeholder-shown) + label {
   top: -6px;
+  left: 10px;
   font-size: 11px;
   color: #00c8ff;
 }
 
-/* ---------- FULLSCREEN IMAGE VIEWER ---------- */
-#imageViewerBg {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.85);
-  display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 2000;
-  animation: fadeIn .25s ease;
-}
-
-#imageViewer {
-  max-width: 95%;
-  max-height: 95%;
+/* ---------- WHY LOGIN ---------- */
+.why-login-box {
+  background: rgba(255,255,255,0.15);
+  padding: 12px;
   border-radius: 12px;
-  box-shadow: 0 0 30px rgba(0,0,0,0.6);
-  animation: zoomIn .25s ease;
-}
-
-@keyframes zoomIn {
-  from { transform: scale(0.8); opacity: 0; }
-  to   { transform: scale(1); opacity: 1; }
+  margin: 15px 0;
+  font-size: 13px;
+  text-align: left;
 }
 
 /* ---------- BUTTONS ---------- */
@@ -158,45 +142,56 @@ header {
   font-weight: bold;
   background: linear-gradient(135deg,#00d2ff,#0072ff);
   color: white;
+  cursor: pointer;
 }
-
+.close-btn {
+  background: rgba(255,255,255,0.25);
+}
 .google-btn {
   background: #fff;
   color: #000;
   display: flex;
+  align-items: center;
   justify-content: center;
   gap: 10px;
 }
 
-.close-btn {
-  background: rgba(255,255,255,0.25);
+.or-text {
+  opacity: .7;
+  margin: 12px 0;
 }
 
-/* ---------- WHY LOGIN ---------- */
-.why-login-box {
-  background: rgba(255,255,255,0.15);
-  padding: 12px;
-  margin: 15px 0;
+.otp-info {
+  font-size: 12px;
+  opacity: .6;
+  margin-top: 10px;
+}
+
+/* ---------- FULLSCREEN VIEWER ---------- */
+#imageViewerBg {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.85);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 3000;
+}
+
+#imageViewer {
+  max-width: 95%;
+  max-height: 95%;
   border-radius: 12px;
-  font-size: 13px;
-  text-align: left;
+  animation: zoom .25s ease;
 }
 
-.why-login-box ul {
-  margin-left: 20px;
-}
-
-/* ---------- IMAGE DISPLAY ---------- */
-.photo-img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  background: #000;
-  border-radius: 8px;
+@keyframes zoom {
+  from { transform: scale(.8); opacity:0; }
+  to   { transform: scale(1); opacity:1; }
 }
 
 /* ---------- GALLERY ---------- */
-.gallery, #gallery {
+#gallery {
   display: grid;
   grid-template-columns: repeat(auto-fill,minmax(160px,1fr));
   gap: 12px;
@@ -206,19 +201,28 @@ header {
   padding: 10px;
   border-radius: 12px;
   background: rgba(255,255,255,.08);
-  box-shadow: 0 0 10px rgba(0,0,0,.3);
   backdrop-filter: blur(10px);
+  box-shadow: 0px 5px 20px rgba(0,0,0,.3);
+}
+
+.photo-img {
+  width: 100%;
+  height: 200px;
+  background: #000;
+  object-fit: contain;
+  border-radius: 8px;
+  cursor: zoom-in;
 }
 
 /* ---------- ADMIN PANEL ---------- */
 .admin-box {
   padding: 12px;
-  border-radius: 12px;
   background: rgba(255,255,255,.1);
+  border-radius: 12px;
   display: none;
 }
 
-/* Divider */
+/* divider */
 .divider {
   opacity: .15;
   margin: 20px 0;
