@@ -76,18 +76,22 @@ header {
 
 #loginModal {
   width: 360px;
+  max-height: 90vh;           /* FIX: never exceed screen height */
   padding: 30px;
-  background: rgba(255,255,255,0.1);
+  overflow-y: auto;           /* FIX: scroll inside modal */
+  background: rgba(255,255,255,.1);
   border-radius: 22px;
   backdrop-filter: blur(35px);
   text-align: center;
-  animation: fadeIn 0.3s ease;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  animation: fadeIn .3s ease;
+  box-shadow: 0 20px 50px rgba(0,0,0,.5);
+  padding-bottom: 40px;       /* FIX: extra space for bottom buttons */
 }
 
+
 @keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.2); }
-  to   { opacity: 1; transform: scale(0.3); }
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
 .login-logo {
