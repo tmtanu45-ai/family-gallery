@@ -83,7 +83,6 @@ header {
   border-radius: 22px;
   backdrop-filter: blur(35px);
   text-align: center;
-  justify-content: center;
   animation: fadeIn .3s ease;
   box-shadow: 0 20px 50px rgba(0,0,0,.5);
   padding-bottom: 40px;       /* FIX: extra space for bottom buttons */
@@ -103,8 +102,11 @@ header {
 /* ---------- FLOATING INPUT ---------- */
 .floatingInput {
   position: relative;
-  margin: 15px 0;
+  margin: 15px auto;       /* center it horizontally */
+  width: 90%;              /* keep nice spacing on left/right */
+  max-width: 320px;        /* prevent too wide inputs */
 }
+
 
 .floatingInput input {
   width: 100%;
@@ -114,7 +116,10 @@ header {
   background: rgba(30,30,30,0.9);
   color: #e6e6e6;
   outline: none;
+  display: block;          /* center alignment fix */
+  margin: 0 auto;          /* ensures true center */
 }
+
 
 .floatingInput label {
   position: absolute;
