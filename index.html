@@ -156,11 +156,13 @@
       await loadGallery();
 
       // listen to auth changes and redirect on sign out
-      supabase.auth.onAuthStateChange((event, session) => {
-        if(event === 'SIGNED_OUT') window.location.href = 'login.html';
-      });
+      window._supabase.auth.onAuthStateChange((event, session) => {
+  if (event === "SIGNED_OUT") window.location.href = "login.html";
+});
+
     })();
   </script>
 </body>
 </html>
+
 
