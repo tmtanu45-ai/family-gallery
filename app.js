@@ -2,7 +2,16 @@
    app.js - unified script for login / index / admin
    Drop this file next to your HTML files and styles.css
 -------------------------------------------------------------------------- */
-
+/* ---------- FORCE LOGIN PROTECTION (index + admin) ---------- */
+async function requireLogin() {
+  const protected = ["index.html", "admin.html", ""];
+  if (!protected.includes(page)) return;
+  const { data: { user } } = await supabaseClient.auth.getUser();
+  if (!user) {
+    window.location.href = "login.html";
+  }
+}
+requireLogin();
 /* ---------- SUPABASE SETUP ---------- */
 const SUPABASE_URL = "https://brnromvxcpzobwpkwepy.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJybnJvbXZ4Y3B6b2J3cGt3ZXB5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMwOTkwOTQsImV4cCI6MjA3ODY3NTA5NH0.FcIogKfFuCyxwyZBgQbLoQkincg9JmJ8CKCBf_X0XSA";
@@ -14,16 +23,7 @@ const BUCKET = "family_photos";
 function $ (id) { return document.getElementById(id); }
 const page = window.location.pathname.split("/").pop() || "index.html";
 
-/* ---------- FORCE LOGIN PROTECTION (index + admin) ---------- */
-async function requireLogin() {
-  const protected = ["index.html", "admin.html", ""];
-  if (!protected.includes(page)) return;
-  const { data: { user } } = await supabaseClient.auth.getUser();
-  if (!user) {
-    window.location.href = "login.html";
-  }
-}
-requireLogin();
+
 
 /* ---------- COMMON UI ---------- */
 async function loadUICommon() {
@@ -419,3 +419,4 @@ if (page === "admin.html") {
 
 /* ---------- ensure UI common loads on other pages ---------- */
 window.addEventListener("load", () => { loadUICommon(); });
+
