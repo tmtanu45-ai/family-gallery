@@ -1,52 +1,162 @@
 <!doctype html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Family Gallery</title>
-  <link rel="stylesheet" href="styles.css">
-  <script src="https://unpkg.com/@supabase/supabase-js@2.38.4/dist/umd/supabase.js"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Family Photo Cloud — Gallery</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="animated-bg"></div>
-
-  <header class="app-header">
-    <div>
-      <span class="brand">Family Photo Cloud</span>
-      <span id="authInfo" class="auth-sub"></span>
+  <nav class="navbar">
+    <div class="container inner">
+      <a class="brand" href="#"><div class="logo">FP</div><strong>Family Cloud</strong></a>
+      <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+        <span id="welcome" style="color:var(--muted)"></span>
+        <button id="btnProfile" class="btn">Profile</button>
+        <button id="btnAdmin" class="btn" style="display:none">Admin</button>
+        <button id="btnLogout" class="btn">Logout</button>
+      </div>
     </div>
-    <div class="header-actions">
-      <a href="login.html" class="top-btn">Login</a>
-      <button id="btnSignOut" class="top-btn signout-btn">Sign Out</button>
-      <a href="admin.html" id="adminLink" class="top-btn" style="display:none">Admin</a>
-    </div>
-  </header>
+  </nav>
 
-  <main class="container">
-    <section class="upload-section">
-      <h3>Upload</h3>
-      <input type="file" id="fileInput" accept="image/*">
-      <input id="albumInput" type="text" placeholder="Album name">
-      <button class="top-btn" id="btnUpload">Upload</button>
-      <div id="upStatus" style="margin-top:8px"></div>
+  <main class="container" style="padding:18px">
+    <header class="header"><h1>Your Family Photo Library</h1><p class="small">Upload and manage your photos.</p></header>
+
+    <section>
+      <div class="uploader" id="dropZone" tabindex="0">
+        <div style="text-align:center">
+          <h3>Drag & drop photos here</h3>
+          <p class="small">or <label for="fileInput" style="text-decoration:underline;cursor:pointer">select files</label></p>
+          <input id="fileInput" type="file" accept="image/*" multiple style="display:none"/>
+        </div>
+      </div>
+      <div class="progress" id="uploadProgress" style="display:none;margin-top:12px"><div class="bar"></div></div>
     </section>
 
-    <section class="albums-section">
-      <h3>Albums</h3>
-      <div id="albums"></div>
-    </section>
+    <section style="margin-top:20px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h2>Gallery</h2>
+        <div><button id="btnRefresh" class="btn">Refresh</button></div>
+      </div>
 
-    <section class="gallery-section">
-      <h3>Gallery</h3>
-      <div id="gallery" class="gallery"></div>
+      <div id="emptyState" style="display:none;padding:20px;border-radius:8px;background:rgba(255,255,255,0.02);color:var(--muted);margin-top:12px">No photos uploaded yet.</div>
+      <div id="galleryGrid" class="gallery-grid" aria-live="polite"></div>
     </section>
   </main>
 
-  <!-- Fullscreen viewer -->
-  <div id="imageViewerBg">
-    <img id="imageViewer" alt="view">
+  <!-- modal -->
+  <div id="modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-card">
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;background:#000"><img id="modalImg" src="" alt="Full image"/></div>
+      <aside style="width:320px;padding:12px;background:var(--panel)">
+        <h3>Photo</h3>
+        <p id="modalFilename" class="small" style="word-break:break-all"></p>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button id="btnDownload" class="btn btn--primary">Download</button>
+          <button id="btnDelete" class="btn">Delete</button>
+          <button id="modalClose" class="btn">Close</button>
+        </div>
+      </aside>
+    </div>
   </div>
 
-  <script src="app.js"></script>
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Load the Supabase client UMD and our app module -->
+  <script type="module">
+    // Because app.js imports the UMD createClient from unpkg, we can just import our module.
+    import * as app from "./app.js";
+
+    const welcome = document.getElementById('welcome');
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const uploadProgress = document.getElementById('uploadProgress');
+    const progressBar = uploadProgress.querySelector('.bar');
+    const galleryGrid = document.getElementById('galleryGrid');
+    const emptyState = document.getElementById('emptyState');
+
+    let currentUser = null;
+
+    function showModal(url, filename) {
+      const modal = document.getElementById('modal');
+      document.getElementById('modalImg').src = url;
+      document.getElementById('modalFilename').textContent = filename;
+      modal.classList.add('is-open'); modal.setAttribute('aria-hidden','false');
+
+      // download
+      document.getElementById('btnDownload').onclick = ()=> window.open(url, '_blank');
+      document.getElementById('btnDelete').onclick = async ()=>{
+        if(!confirm('Delete this photo?')) return;
+        // extract basename from filename (we store path as `${userId}/${timestamp}-${safeName}`)
+        const pathParts = filename.split('/');
+        const bland = pathParts[pathParts.length-1];
+        const { error } = await app.deleteFileForUser(currentUser.id, bland);
+        if(error) { app.toast('Delete failed'); console.error(error); }
+        else { app.toast('Deleted'); closeModal(); loadGallery(); }
+      };
+    }
+    function closeModal(){ const modal = document.getElementById('modal'); modal.classList.remove('is-open'); modal.setAttribute('aria-hidden','true'); }
+
+    document.getElementById('modalClose').addEventListener('click', closeModal);
+    document.getElementById('btnLogout').addEventListener('click', ()=> app.signOut());
+    document.getElementById('btnRefresh').addEventListener('click', ()=> loadGallery());
+    document.getElementById('btnAdmin').addEventListener('click', ()=> window.location.href = 'admin.html');
+
+    // uploader interactions
+    dropZone.addEventListener('click', ()=> fileInput.click());
+    dropZone.addEventListener('dragover', e=> { e.preventDefault(); dropZone.classList.add('uploader--drag'); });
+    dropZone.addEventListener('dragleave', ()=> dropZone.classList.remove('uploader--drag'));
+    dropZone.addEventListener('drop', e=> { e.preventDefault(); dropZone.classList.remove('uploader--drag'); handleFiles(e.dataTransfer.files); });
+    fileInput.addEventListener('change', ()=> handleFiles(fileInput.files));
+
+    async function handleFiles(files) {
+      if(!files || files.length===0) return;
+      uploadProgress.style.display = 'block';
+      progressBar.style.width = '0%';
+      const list = Array.from(files);
+      for(let i=0;i<list.length;i++){
+        const f = list[i];
+        if(!f.type.startsWith('image/')) { app.toast('Skipped (not image): ' + f.name); continue; }
+        if(f.size > 100*1024*1024) { app.toast('Skipped (too large): ' + f.name); continue; }
+        const { data, error, path } = await app.uploadFileForUser(currentUser.id, f);
+        if(error) { console.error(error); app.toast('Upload error: ' + (error.message || 'unknown')); } else app.toast('Uploaded: ' + f.name);
+        const pct = Math.round(((i+1)/list.length)*100); progressBar.style.width = pct + '%';
+      }
+      setTimeout(()=> { uploadProgress.style.display='none'; progressBar.style.width='0%'; loadGallery(); }, 700);
+    }
+
+    // load gallery
+    async function loadGallery() {
+      galleryGrid.innerHTML = '';
+      if(!currentUser) return;
+      const { data, error } = await app.listFilesForUser(currentUser.id);
+      if(error) { console.error(error); app.toast('Failed to list files'); return; }
+      if(!data || data.length===0) { emptyState.style.display='block'; return; }
+      emptyState.style.display = 'none';
+      data.forEach(item => {
+        const publicUrl = app.getPublicUrl(`${currentUser.id}/${item.name}`);
+        const card = document.createElement('div'); card.className = 'photo-card';
+        card.innerHTML = `<img src="${publicUrl}" alt="${app.escapeHtml(item.name)}" loading="lazy">`;
+        card.addEventListener('click', ()=> showModal(publicUrl, `${currentUser.id}/${item.name}`));
+        galleryGrid.appendChild(card);
+      });
+    }
+
+    // init
+    (async ()=> {
+      const user = await app.requireAuth(true);
+      if(!user) return;
+      currentUser = user;
+      welcome.textContent = currentUser.email || currentUser.phone || 'Member';
+      // show admin button if user has metadata flag
+      if(currentUser.user_metadata && currentUser.user_metadata.isAdmin) document.getElementById('btnAdmin').style.display = 'inline-flex';
+      await loadGallery();
+
+      // listen to auth changes and redirect on sign out
+      supabase.auth.onAuthStateChange((event, session) => {
+        if(event === 'SIGNED_OUT') window.location.href = 'login.html';
+      });
+    })();
+  </script>
 </body>
 </html>
