@@ -63,6 +63,9 @@
   <div id="toastContainer" class="toast-container"></div>
 
   <!-- Load the Supabase client UMD and our app module -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script type="module" src="app.js"></script>
+
   <script type="module">
     // Because app.js imports the UMD createClient from unpkg, we can just import our module.
     import * as app from "./app.js";
@@ -160,3 +163,4 @@
   </script>
 </body>
 </html>
+
