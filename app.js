@@ -1,9 +1,9 @@
 // app.js (ES module)
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-const SUPABASE_URL = '<YOUR_SUPABASE_URL>';
-const SUPABASE_ANON_KEY = '<YOUR_SUPABASE_ANON_KEY>';
-const ADMIN_API_BASE = '<YOUR_ADMIN_SERVER_URL>'; // deployed admin-server endpoints (optional)
+const SUPABASE_URL = "https://brnromvxcpzobwpkwepy.supabase.co" ;
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJybnJvbXZ4Y3B6b2J3cGt3ZXB5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMwOTkwOTQsImV4cCI6MjA3ODY3NTA5NH0.FcIogKfFuCyxwyZBgQbLoQkincg9JmJ8CKCBf_X0XSA";
+const ADMIN_API_BASE = ; // deployed admin-server endpoints (optional)
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -284,3 +284,4 @@ async function listUsersAdmin() {
 
 /* ------------------ INIT ------------------ */
 init();
+
