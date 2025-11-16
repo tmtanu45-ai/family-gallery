@@ -1,8 +1,8 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Login — Family Photo Cloud</title>
   <link rel="stylesheet" href="styles.css">
   <script src="https://unpkg.com/@supabase/supabase-js@2.38.4/dist/umd/supabase.js"></script>
@@ -34,6 +34,9 @@
         <input id="loginPassword" type="password" placeholder=" " autocomplete="current-password">
         <label>Password</label>
       </div>
+
+      <!-- Password strength meter -->
+      <div id="passwordStrength" style="width:92%;max-width:360px;margin:6px auto 0;font-size:13px;color:#ccc;"></div>
 
       <button class="premium-btn" id="btnEmailSignIn">Sign in</button>
       <button class="premium-btn" id="btnEmailSignUp">Create account</button>
