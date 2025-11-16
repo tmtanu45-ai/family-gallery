@@ -1,7 +1,20 @@
-/* --------------------------------------------------------------------------
-   app.js - unified script for login / index / admin
-   Drop this file next to your HTML files and styles.css
--------------------------------------------------------------------------- */
+// app.js (updated: includes password strength checker, sign-up blocking for weak passwords,
+// and filename escaping + photo-name usage in gallery rendering)
+
+// ---------- SUPABASE SETUP ----------
+const SUPABASE_URL = "https://brnromvxcpzobwpkwepy.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJybnJvbXZ4Y3B6b2J3cGt3ZXB5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMwOTkwOTQsImV4cCI6MjA3ODY3NTA5NH0.FcIogKfFuCyxwyZBgQbLoQkincg9JmJ8CKCBf_X0XSA";
+
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const BUCKET = "family_photos";
+
+// helpers
+function $ (id) { return document.getElementById(id); }
+const page = window.location.pathname.split("/").pop() || "index.html";
+
+// simple HTML escape to avoid title attribute breaking
+function escHtml(s){ return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
 /* ---------- FORCE LOGIN PROTECTION (index + admin) ---------- */
 async function requireLogin() {
   const protected = ["index.html", "admin.html", ""];
@@ -12,18 +25,6 @@ async function requireLogin() {
   }
 }
 requireLogin();
-/* ---------- SUPABASE SETUP ---------- */
-const SUPABASE_URL = "https://brnromvxcpzobwpkwepy.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJybnJvbXZ4Y3B6b2J3cGt3ZXB5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMwOTkwOTQsImV4cCI6MjA3ODY3NTA5NH0.FcIogKfFuCyxwyZBgQbLoQkincg9JmJ8CKCBf_X0XSA";
-
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-const BUCKET = "family_photos";
-
-/* ---------- helpers ---------- */
-function $ (id) { return document.getElementById(id); }
-const page = window.location.pathname.split("/").pop() || "index.html";
-
-
 
 /* ---------- COMMON UI ---------- */
 async function loadUICommon() {
@@ -89,13 +90,46 @@ async function sendResetMail() {
 async function enforceVerifiedUserOnLoad() {
   const { data: { user } } = await supabaseClient.auth.getUser();
   if (!user) return;
-  // 'email_confirmed_at' exists when verified
   if (!user.email_confirmed_at) {
-    // redirect to confirm page
     window.location.href = "confirm-email.html";
   }
 }
 window.addEventListener("load", enforceVerifiedUserOnLoad);
+
+/* -------- PASSWORD STRENGTH CHECKER -------- */
+function checkPasswordStrength(password) {
+  let score = 0;
+  if (password.length >= 6) score++;
+  if (password.length >= 10) score++;
+  if (/[A-Z]/.test(password)) score++;
+  if (/[0-9]/.test(password)) score++;
+  if (/[^A-Za-z0-9]/.test(password)) score++;
+  return score;  // 0–5
+}
+
+function renderStrength(password) {
+  const box = $("passwordStrength");
+  if (!box) return;
+  const score = checkPasswordStrength(password);
+  let color = "#ff5959";
+  let text = "Weak";
+  if (score >= 3) { color = "#ffb347"; text = "Medium"; }
+  if (score >= 4) { color = "#4cd964"; text = "Strong"; }
+  box.innerHTML = `
+    <div style="text-align:left;margin-bottom:6px">${text}</div>
+    <div class="pw-bar" style="width:${score * 20}%; background:${color};"></div>
+  `;
+}
+
+/* attach listener (works only on login page) */
+if (page === "login.html") {
+  const passInput = $("loginPassword");
+  if (passInput) {
+    passInput.addEventListener("input", () => {
+      renderStrength(passInput.value);
+    });
+  }
+}
 
 /* ---------- LOGIN PAGE LOGIC ---------- */
 if (page === "login.html") {
@@ -116,7 +150,6 @@ if (page === "login.html") {
     const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
     if (error) {
-      // show forgot link if invalid credentials
       if (/invalid|credentials/i.test(error.message)) {
         alert("Wrong password!");
         showForgot();
@@ -136,12 +169,17 @@ if (page === "login.html") {
     window.location.href = "index.html";
   });
 
-  // Email sign-up (create account)
+  // Email sign-up (create account) with weak-password check
   btnEmailSignUp?.addEventListener("click", async () => {
     const email = $("loginEmail").value.trim();
     const password = $("loginPassword").value;
 
     if (!email || !password) return alert("Enter email & password to sign up.");
+
+    if (checkPasswordStrength(password) < 3) {
+      alert("Your password is too weak. Use at least 10 chars, mixed case, numbers or symbols.");
+      return;
+    }
 
     const { error } = await supabaseClient.auth.signUp({
       email,
@@ -153,7 +191,6 @@ if (page === "login.html") {
 
     if (error) return alert(error.message);
 
-    // Create profiles row (optional) - Supabase edge may already do this via trigger
     alert("Sign-up complete. Check your email to verify your account.");
     window.location.href = "confirm-email.html";
   });
@@ -255,12 +292,12 @@ if (page === "index.html" || page === "") {
     galleryDiv.innerHTML = "";
     (data || []).forEach(p => {
       const url = supabaseClient.storage.from(BUCKET).getPublicUrl(p.storage_path).data.publicUrl;
-
+      const safeName = escHtml(p.filename);
       galleryDiv.innerHTML += `
         <div class="card">
           <img src="${url}" class="photo-img" onclick="openImageViewer('${url}')">
-          <p style="margin:8px 0 4px"><b>${p.filename}</b></p>
-          ${isAdmin ? `<p style="font-size:12px;opacity:0.7">Uploaded by: ${p.uploader_email || 'unknown'}</p>` : ''}
+          <p class="photo-name" title="${safeName}">${safeName}</p>
+          ${isAdmin ? `<p style="font-size:12px;opacity:0.7">Uploaded by: ${escHtml(p.uploader_email || 'unknown')}</p>` : ''}
           ${isAdmin ? `<button class="top-btn" onclick="deletePhoto('${p.id}','${p.storage_path}')">Delete</button>` : ''}
         </div>
       `;
@@ -302,11 +339,12 @@ if (page === "index.html" || page === "") {
     galleryDiv.innerHTML = "";
     (data || []).forEach(p => {
       const url = supabaseClient.storage.from(BUCKET).getPublicUrl(p.storage_path).data.publicUrl;
+      const safeName = escHtml(p.filename);
       galleryDiv.innerHTML += `
         <div class="card">
           <img src="${url}" class="photo-img" onclick="openImageViewer('${url}')">
-          <p style="margin:8px 0 4px"><b>${p.filename}</b></p>
-          ${isAdmin ? `<p style="font-size:12px;opacity:0.7">Uploaded by: ${p.uploader_email || 'unknown'}</p>` : ''}
+          <p class="photo-name" title="${safeName}">${safeName}</p>
+          ${isAdmin ? `<p style="font-size:12px;opacity:0.7">Uploaded by: ${escHtml(p.uploader_email || 'unknown')}</p>` : ''}
           ${isAdmin ? `<button class="top-btn" onclick="deletePhoto('${p.id}','${p.storage_path}')">Delete</button>` : ''}
         </div>
       `;
@@ -360,15 +398,15 @@ if (page === "admin.html") {
       div.innerHTML = `
         <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
           <div style="flex:1">
-            <div><b>${u.email || u.phone || 'unknown'}</b></div>
-            <div style="font-size:13px;color:rgba(255,255,255,0.7)">id: ${u.id}</div>
+            <div><b>${escHtml(u.email || u.phone || 'unknown')}</b></div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.7)">id: ${escHtml(u.id)}</div>
           </div>
           <div style="display:flex;gap:8px;align-items:center">
-            <select id="role_${u.id}">
+            <select id="role_${escHtml(u.id)}">
               <option value="member" ${u.role==='member'?'selected':''}>member</option>
               <option value="admin" ${u.role==='admin'?'selected':''}>admin</option>
             </select>
-            <button class="top-btn" onclick="updateRole('${u.id}')">Update</button>
+            <button class="top-btn" onclick="updateRole('${escHtml(u.id)}')">Update</button>
           </div>
         </div>
       `;
@@ -381,7 +419,7 @@ if (page === "admin.html") {
     const sel = $("role_" + id);
     if (!sel) return alert("Role select not found.");
     const role = sel.value;
-    const { error } = await supabaseClient.from("profiles").update({ role }).eq("id", id);
+    const { error } = await supabaseClient.from("profiles").update({ role }).eq('id', id);
     if (error) return alert("Role update error: " + error.message);
     alert("Role updated.");
     loadAdminUsers();
@@ -395,12 +433,13 @@ if (page === "admin.html") {
     box.innerHTML = "";
     (data || []).forEach(p => {
       const url = supabaseClient.storage.from(BUCKET).getPublicUrl(p.storage_path).data.publicUrl;
+      const safeName = escHtml(p.filename);
       const div = document.createElement("div");
       div.className = "card";
       div.innerHTML = `
         <img src="${url}" class="photo-img">
-        <p style="margin:8px 0 4px"><b>${p.filename}</b></p>
-        <p style="font-size:12px;opacity:0.7">Uploaded by: ${p.uploader_email || 'unknown'}</p>
+        <p style="margin:8px 0 4px"><b>${safeName}</b></p>
+        <p style="font-size:12px;opacity:0.7">Uploaded by: ${escHtml(p.uploader_email || 'unknown')}</p>
         <button class="top-btn" onclick="adminDeletePhoto('${p.id}','${p.storage_path}')">Delete</button>
       `;
       box.appendChild(div);
@@ -419,4 +458,3 @@ if (page === "admin.html") {
 
 /* ---------- ensure UI common loads on other pages ---------- */
 window.addEventListener("load", () => { loadUICommon(); });
-
