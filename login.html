@@ -1,73 +1,122 @@
 <!doctype html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Login — Family Photo Cloud</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Login — Family Cloud</title>
   <link rel="stylesheet" href="styles.css">
-  <script src="https://unpkg.com/@supabase/supabase-js@2.38.4/dist/umd/supabase.js"></script>
 </head>
 <body>
-  <div class="animated-bg"></div>
+  <div class="container" style="padding:24px">
+    <div class="card" style="max-width:520px;margin:0 auto">
+      <h2>Sign in / Sign up</h2>
 
-  <main class="login-fullscreen" role="main">
-    <div class="login-card" role="form" aria-label="Login form">
-      <img class="login-logo" src="https://cdn-icons-png.flaticon.com/512/1829/1829586.png" alt="logo">
-      <h1>Family Photo Cloud</h1>
-      <p class="login-sub">Sign in to access your family's photos</p>
+      <div id="errorBox" style="display:none" class="error"></div>
 
-      <div class="why-login-box">
-        <b>Why sign in?</b>
-        <ul>
-          <li>Upload & organize family photos</li>
-          <li>Create private albums</li>
-          <li>Share memories securely</li>
-        </ul>
+      <div style="margin-top:12px">
+        <input id="email" class="input" placeholder="Email" />
       </div>
 
-      <div class="floatingInput">
-        <input id="loginEmail" type="email" placeholder=" " autocomplete="email">
-        <label>Email address</label>
+      <div style="margin-top:8px">
+        <input id="password" type="password" class="input" placeholder="Password (for password login)" />
       </div>
 
-      <div class="floatingInput">
-        <input id="loginPassword" type="password" placeholder=" " autocomplete="current-password">
-        <label>Password</label>
+      <div class="form-row" style="margin-top:12px">
+        <button id="btnSignUp" class="btn">Sign up (email)</button>
+        <button id="btnLogin" class="btn btn--primary">Login (password)</button>
+        <button id="btnMagic" class="btn">Magic link</button>
       </div>
 
-      <!-- Password strength meter -->
-      <div id="passwordStrength" style="width:92%;max-width:360px;margin:6px auto 0;font-size:13px;color:#ccc;"></div>
+      <hr style="margin:12px 0;border:none;border-top:1px solid rgba(255,255,255,0.03)">
 
-      <button class="premium-btn" id="btnEmailSignIn">Sign in</button>
-      <button class="premium-btn" id="btnEmailSignUp">Create account</button>
-
-      <p class="or-text">or</p>
-
-      <div class="floatingInput">
-        <input id="loginPhone" type="text" placeholder=" " pattern="^\+\d{10,15}$">
-        <label>Phone (E.164 format, e.g. +919999999999)</label>
+      <div>
+        <button id="btnGoogle" class="btn">Sign in with Google</button>
       </div>
 
-      <button class="premium-btn" id="btnPhoneOtp">Send OTP (SMS)</button>
+      <hr style="margin:12px 0;border:none;border-top:1px solid rgba(255,255,255,0.03)">
 
-      <p class="otp-info">If Supabase is in Test Mode OTP = <b>123456</b></p>
+      <div>
+        <input id="phone" class="input" placeholder="Phone (E.164 format, e.g. +1234567890)" />
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button id="btnPhoneOtp" class="btn">Send SMS OTP</button>
+          <input id="smsToken" class="input" placeholder="Enter SMS code" style="max-width:160px"/>
+          <button id="btnVerifySms" class="btn">Verify</button>
+        </div>
+      </div>
 
-      <button class="premium-btn" id="btnEmailOtp">Sign in with Email OTP</button>
-
-      <p class="or-text" style="margin-top:10px">or</p>
-
-      <button class="premium-btn google-btn" id="btnGoogle">
-        <img src="https://cdn-icons-png.flaticon.com/512/300/300221.png" alt="Google"> Continue with Google
-      </button>
-
-      <p id="forgotPassword" class="forgot-link" style="display:none;">
-        <a onclick="sendResetMail()" style="cursor:pointer;color:#00c8ff;">Forgot password?</a>
-      </p>
-
-      <p class="small-note">After sign in you will be redirected to the main gallery.</p>
+      <p class="small" style="margin-top:12px">After sign up you may get an email to confirm. Use magic link option to request a link instead.</p>
     </div>
-  </main>
+  </div>
 
-  <script src="app.js"></script>
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Load Supabase client and our app module -->
+  <script type="module">
+    import * as app from "./app.js";
+
+    // Basic UI wiring
+    const email = document.getElementById('email');
+    const password = document.getElementById('password');
+    const errorBox = document.getElementById('errorBox');
+    const toast = app.toast;
+
+    function showError(msg){ errorBox.style.display='block'; errorBox.textContent = msg; setTimeout(()=> errorBox.style.display='none',4000); }
+
+    document.getElementById('btnSignUp').addEventListener('click', async ()=>{
+      const e = email.value.trim();
+      const p = password.value;
+      if(!e || !p) return showError('Email and password required for sign up');
+      const res = await app.signUpWithEmail(e,p);
+      if(res.error) return showError(res.error.message || 'Sign up failed');
+      toast('Sign-up initiated — check your email to confirm (if required)');
+    });
+
+    document.getElementById('btnLogin').addEventListener('click', async ()=>{
+      const e = email.value.trim(); const p = password.value;
+      if(!e || !p) return showError('Email and password required');
+      const { data, error } = await app.signInWithPassword(e,p);
+      if(error) return showError(error.message);
+      toast('Logged in');
+      window.location.href = 'index.html';
+    });
+
+    document.getElementById('btnMagic').addEventListener('click', async ()=>{
+      const e = email.value.trim();
+      if(!e) return showError('Enter email for magic link');
+      const { data, error } = await app.signInWithMagicLink(e);
+      if(error) return showError(error.message);
+      toast('Magic link (or OTP) sent to email');
+      window.location.href = 'confirm-email.html';
+    });
+
+    document.getElementById('btnGoogle').addEventListener('click', ()=>{
+      app.signInWithGoogle();
+    });
+
+    // Phone OTP flow
+    document.getElementById('btnPhoneOtp').addEventListener('click', async ()=>{
+      const phone = document.getElementById('phone').value.trim();
+      if(!phone) return showError('Enter phone in E.164 format');
+      const { data, error } = await app.signInWithPhone(phone);
+      if(error) return showError(error.message);
+      toast('SMS OTP sent (if phone is valid for your Supabase project)');
+    });
+
+    document.getElementById('btnVerifySms').addEventListener('click', async ()=>{
+      const phone = document.getElementById('phone').value.trim();
+      const token = document.getElementById('smsToken').value.trim();
+      if(!phone || !token) return showError('Phone and token required');
+      const { data, error } = await app.verifyPhoneOtp(phone, token);
+      if(error) return showError(error.message || 'Verify OTP failed');
+      toast('Phone verified & signed in');
+      window.location.href = 'index.html';
+    });
+
+    // If already logged in — redirect
+    (async ()=> {
+      const user = await app.requireAuth(false);
+      if(user) window.location.href = 'index.html';
+    })();
+  </script>
 </body>
 </html>
