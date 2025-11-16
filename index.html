@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Family Gallery</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/@supabase/supabase-js@2.38.4/dist/umd/supabase.js"></script>
+</head>
+<body>
+  <div class="animated-bg"></div>
+
+  <header class="app-header">
+    <div>
+      <span class="brand">Family Photo Cloud</span>
+      <span id="authInfo" class="auth-sub"></span>
+    </div>
+    <div class="header-actions">
+      <a href="login.html" class="top-btn">Login</a>
+      <button id="btnSignOut" class="top-btn signout-btn">Sign Out</button>
+      <a href="admin.html" id="adminLink" class="top-btn" style="display:none">Admin</a>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="upload-section">
+      <h3>Upload</h3>
+      <input type="file" id="fileInput" accept="image/*">
+      <input id="albumInput" type="text" placeholder="Album name">
+      <button class="top-btn" id="btnUpload">Upload</button>
+      <div id="upStatus" style="margin-top:8px"></div>
+    </section>
+
+    <section class="albums-section">
+      <h3>Albums</h3>
+      <div id="albums"></div>
+    </section>
+
+    <section class="gallery-section">
+      <h3>Gallery</h3>
+      <div id="gallery" class="gallery"></div>
+    </section>
+  </main>
+
+  <!-- Fullscreen viewer -->
+  <div id="imageViewerBg">
+    <img id="imageViewer" alt="view">
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
