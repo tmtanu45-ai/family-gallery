@@ -14,6 +14,7 @@ if (!window.supabase) {
   alert("Supabase failed to load. Check your network.");
 }
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+window._supabase = supabase;
 
 // -------------------------
 // Toast system
@@ -120,3 +121,4 @@ export function escapeHtml(str) {
     }[c];
   });
 }
+
