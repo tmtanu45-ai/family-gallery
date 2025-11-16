@@ -1,38 +1,58 @@
 <!doctype html>
-<html lang="en">
+<html>
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Admin — Family Photo Cloud</title>
-  <link rel="stylesheet" href="styles.css">
-  <script src="https://unpkg.com/@supabase/supabase-js@2.38.4/dist/umd/supabase.js"></script>
+  <title>Admin — Family Cloud</title>
+  <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
-  <div class="animated-bg"></div>
-
-  <header class="app-header">
-    <div>
-      <span class="brand">Admin Panel</span>
-      <span id="authInfo" class="auth-sub"></span>
+  <div class="container" style="padding:18px">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h2>Admin Panel</h2>
+      <div><a href="index.html" class="btn">Back</a></div>
     </div>
-    <div class="header-actions">
-      <a href="index.html" class="top-btn">Home</a>
-      <button id="btnSignOut" class="top-btn signout-btn">Sign Out</button>
+
+    <div class="card" style="margin-top:12px">
+      <p class="small">Enter a user ID to view their photos:</p>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <input id="userIdInput" class="input" placeholder="user id">
+        <button id="btnLookup" class="btn btn--primary">Lookup</button>
+      </div>
+
+      <div id="adminGrid" class="gallery-grid" style="margin-top:12px"></div>
     </div>
-  </header>
+  </div>
 
-  <main class="container admin-container">
-    <section>
-      <h3>Users (profiles)</h3>
-      <div id="adminUsers"></div>
-    </section>
+  <div id="toastContainer" class="toast-container"></div>
 
-    <section style="margin-top:20px">
-      <h3>Photos (manage)</h3>
-      <div id="adminPhotos" class="gallery"></div>
-    </section>
-  </main>
+  <script type="module">
+    import * as app from "./app.js";
 
-  <script src="app.js"></script>
+    let currentUser;
+    (async ()=> {
+      currentUser = await app.requireAuth(true);
+      if(!currentUser) return;
+      // only allow if metadata indicates admin
+      if(!(currentUser.user_metadata && currentUser.user_metadata.isAdmin)) {
+        app.toast('Not an admin — redirecting'); setTimeout(()=> location.href = 'index.html', 900); return;
+      }
+    })();
+
+    document.getElementById('btnLookup').addEventListener('click', async ()=>{
+      const id = document.getElementById('userIdInput').value.trim();
+      if(!id) return app.toast('Enter user id');
+      const { data, error } = await app.listFilesForUser(id);
+      const grid = document.getElementById('adminGrid'); grid.innerHTML = '';
+      if(error){ app.toast('Error listing'); console.error(error); return; }
+      if(!data || data.length === 0) { app.toast('No photos found for user'); return; }
+      data.forEach(item => {
+        const url = app.getPublicUrl(`${id}/${item.name}`);
+        const el = document.createElement('div'); el.className = 'photo-card';
+        el.innerHTML = `<img src="${url}" alt="${app.escapeHtml(item.name)}">`;
+        grid.appendChild(el);
+      });
+    });
+  </script>
 </body>
 </html>
