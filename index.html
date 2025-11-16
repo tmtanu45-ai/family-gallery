@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Family Photo Cloud</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script type="module" src="app.js" defer></script>
+</head>
+<body>
+  <main id="app">
+    <header>
+      <h1>Family Photo Cloud</h1>
+      <div id="authButtons">
+        <button id="btnSignUp">Sign up</button>
+        <button id="btnLogin">Log in</button>
+        <button id="btnSignOut" style="display:none">Sign out</button>
+      </div>
+    </header>
+
+    <section id="authSection" class="card">
+      <h2>Sign up / Login</h2>
+      <div class="row">
+        <input id="email" placeholder="Email" />
+        <input id="password" type="password" placeholder="Password" />
+        <button id="btnEmailSignUp">Sign up (email)</button>
+        <button id="btnEmailLogin">Log in (email)</button>
+      </div>
+      <div class="row">
+        <button id="btnGoogle">Continue with Google</button>
+        <button id="btnPhone">Phone OTP (Sign in)</button>
+      </div>
+      <div id="authMsg" class="muted"></div>
+    </section>
+
+    <section id="uploadSection" class="card" style="display:none">
+      <h2>Upload photo</h2>
+      <input id="fileInput" type="file" accept="image/*" />
+      <button id="btnUpload">Upload</button>
+      <div id="uploadMsg" class="muted"></div>
+    </section>
+
+    <section id="gallerySection" class="card" style="display:none">
+      <h2>Your Gallery</h2>
+      <div id="gallery" class="galleryGrid"></div>
+    </section>
+
+    <section id="fullView" class="card" style="display:none">
+      <h2>Photo</h2>
+      <img id="fullImage" src="" alt="full" />
+      <div>
+        <button id="btnDelete">Delete (move to trash)</button>
+        <button id="btnBack">Back</button>
+      </div>
+    </section>
+
+    <section id="adminSection" class="card" style="display:none">
+      <h2>Admin</h2>
+      <button id="btnListUsers">List Users</button>
+      <pre id="adminOutput" class="monospace"></pre>
+    </section>
+
+    <footer>
+      <small>Built with Supabase</small>
+    </footer>
+  </main>
+</body>
+</html>
