@@ -1,34 +1,39 @@
-// app.js — main application logic (module)
-// Replace these values with your project values (already set for you)
-export const SUPABASE_URL = "https://brnromvxcpzobwpkwepy.supabase.co";
-export const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJybnJvbXZ4Y3B6b2J3cGt3ZXB5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMwOTkwOTQsImV4cCI6MjA3ODY3NTA5NH0.FcIogKfFuCyxwyZBgQbLoQkincg9JmJ8CKCBf_X0XSA";
+// app.js — CORRECTED (no import syntax, works with UMD)
 
-// Note: app.js is written as a module and must be loaded with type="module".
-// It exports helpers used by pages. Pages may import specific functions.
-import { createClient } from "https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js";
+// -------------------------
+// Supabase credentials
+// -------------------------
+const SUPABASE_URL = "https://brnromvxcpzobwpkwepy.supabase.co";
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJybnJvbXZ4Y3B6b2J3cGt3ZXB5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMwOTkwOTQsImV4cCI6MjA3ODY3NTA5NH0.FcIogKfFuCyxwyZBgQbLoQkincg9JmJ8CKCBf_X0XSA";
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// -------------------------
+// Initialize Supabase
+// -------------------------
+if (!window.supabase) {
+  alert("Supabase failed to load. Check your network.");
+}
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Utilities
-export function toast(msg, duration = 3500) {
-  const wrap = document.getElementById("toastContainer");
-  if (!wrap) return console.log("Toast:", msg);
+// -------------------------
+// Toast system
+// -------------------------
+export function toast(msg, ms = 3000) {
+  const c = document.getElementById("toastContainer");
+  if (!c) return console.log(msg);
   const el = document.createElement("div");
   el.className = "toast";
   el.textContent = msg;
-  wrap.appendChild(el);
-  setTimeout(() => el.remove(), duration);
+  c.appendChild(el);
+  setTimeout(() => el.remove(), ms);
 }
 
+// -------------------------
+// Auth helpers
+// -------------------------
 export async function requireAuth(redirect = true) {
-  // returns user or null (and optionally redirects)
   const { data, error } = await supabase.auth.getUser();
-  if (error) {
-    console.warn("getUser error", error);
-    if (redirect) window.location.href = "login.html";
-    return null;
-  }
-  if (!data?.user) {
+  if (error || !data?.user) {
     if (redirect) window.location.href = "login.html";
     return null;
   }
@@ -36,7 +41,6 @@ export async function requireAuth(redirect = true) {
 }
 
 export async function signUpWithEmail(email, password) {
-  // sign up (email confirm link if enabled in Supabase)
   return await supabase.auth.signUp({ email, password });
 }
 
@@ -49,7 +53,6 @@ export async function signInWithMagicLink(email) {
 }
 
 export async function signInWithGoogle() {
-  // will redirect to provider
   return await supabase.auth.signInWithOAuth({ provider: "google" });
 }
 
@@ -58,7 +61,11 @@ export async function signInWithPhone(phone) {
 }
 
 export async function verifyPhoneOtp(phone, token) {
-  return await supabase.auth.verifyOtp({ phone, token, type: "sms" });
+  return await supabase.auth.verifyOtp({
+    phone,
+    token,
+    type: "sms",
+  });
 }
 
 export async function signOut() {
@@ -66,13 +73,19 @@ export async function signOut() {
   window.location.href = "login.html";
 }
 
-// Storage helpers (bucket "photos")
+// -------------------------
+// Storage helpers
+// -------------------------
 export const BUCKET = "photos";
 
 export async function uploadFileForUser(userId, file) {
   const safeName = sanitizeFilename(file.name);
   const path = `${userId}/${Date.now()}-${safeName}`;
-  const { data, error } = await supabase.storage.from(BUCKET).upload(path, file, { cacheControl: "3600", upsert: false });
+
+  const { data, error } = await supabase.storage
+    .from(BUCKET)
+    .upload(path, file, { cacheControl: "3600", upsert: false });
+
   return { data, error, path };
 }
 
@@ -81,23 +94,29 @@ export function getPublicUrl(path) {
 }
 
 export async function listFilesForUser(userId) {
-  const { data, error } = await supabase.storage.from(BUCKET).list(`${userId}/`, { limit: 500, sortBy: { column: "name", order: "desc" } });
-  return { data, error };
+  return await supabase.storage.from(BUCKET).list(`${userId}/`, {
+    limit: 500,
+    sortBy: { column: "name", order: "desc" },
+  });
 }
 
-export async function deleteFileForUser(userId, name) {
-  return await supabase.storage.from(BUCKET).remove(`${userId}/${name}`);
+export async function deleteFileForUser(userId, filename) {
+  return await supabase.storage
+    .from(BUCKET)
+    .remove(`${userId}/${filename}`);
 }
 
-export async function createSignedUrl(path, expiresIn = 60) {
-  // use for private buckets — returns { data, error }
-  return await supabase.storage.from(BUCKET).createSignedUrl(path, expiresIn);
-}
-
-export function sanitizeFilename(name) {
-  return name.replace(/[^a-zA-Z0-9\.\-\_]/g, "_");
+export function sanitizeFilename(s) {
+  return s.replace(/[^a-zA-Z0-9._-]/g, "_");
 }
 
 export function escapeHtml(str) {
-  return String(str).replace(/[&<>"']/g, s => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[s]);
+  return String(str).replace(/[&<>"']/g, (c) => {
+    return {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+    }[c];
+  });
 }
